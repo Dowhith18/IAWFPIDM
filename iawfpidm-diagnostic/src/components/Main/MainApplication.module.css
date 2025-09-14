@@ -1,0 +1,666 @@
+/* 
+ * IAWFPIDM MainApplication Styles
+ * Post-login application layout and navigation styling
+ * Version 2.1.0
+ */
+
+/* ===== MAIN APPLICATION CONTAINER ===== */
+.mainApplication {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== MAIN CONTENT AREA ===== */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 280px; /* Sidebar width */
+  transition: margin-left var(--duration-normal) ease;
+  min-height: 100vh;
+  position: relative;
+}
+
+.mainContent.sidebarCollapsed {
+  margin-left: 80px; /* Collapsed sidebar width */
+}
+
+/* ===== HEADER BAR ===== */
+.headerBar {
+  background: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
+  border-bottom: 2px solid var(--border-primary);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+}
+
+.headerBar::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--iawfpidm-accent) 50%, transparent 100%);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+/* ===== HEADER BACK BUTTON ===== */
+.headerBackButton {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: all var(--duration-normal) ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.headerBackButton:hover {
+  background: var(--iawfpidm-accent);
+  color: var(--text-primary);
+  border-color: var(--iawfpidm-accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.headerBackButton:active {
+  transform: translateY(0);
+}
+
+/* ===== PAGE INFORMATION ===== */
+.pageInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: capitalize;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--iawfpidm-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.breadcrumbSeparator {
+  color: var(--text-disabled);
+  font-size: var(--font-size-xs);
+}
+
+.breadcrumbLabel {
+  font-weight: 500;
+  text-transform: capitalize;
+  transition: color var(--duration-fast) ease;
+}
+
+.breadcrumbLabel.active {
+  color: var(--iawfpidm-accent);
+  font-weight: 600;
+}
+
+.breadcrumbLabel:not(.active):hover {
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* ===== VEHICLE INFORMATION ===== */
+.vehicleInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(211, 47, 47, 0.1) 0%, var(--surface-tertiary) 100%);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(5px);
+}
+
+.vehicleIcon {
+  font-size: var(--font-size-xl);
+  color: var(--iawfpidm-primary);
+}
+
+.vehicleDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vehicleModel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vehicleVin {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+}
+
+/* ===== SESSION INFORMATION ===== */
+.sessionInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, var(--surface-tertiary) 100%);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(5px);
+}
+
+.sessionIcon {
+  font-size: var(--font-size-xl);
+  color: var(--iawfpidm-accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.sessionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sessionStatus {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--success-green);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sessionId {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+}
+
+/* ===== CONTENT AREA ===== */
+.contentArea {
+  flex: 1;
+  padding: var(--spacing-xl);
+  background: var(--background-primary);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.contentArea::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(
+    180deg,
+    rgba(211, 47, 47, 0.02) 0%,
+    rgba(33, 150, 243, 0.02) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ===== ERROR CONTAINER ===== */
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--spacing-xl);
+}
+
+.errorContent {
+  text-align: center;
+  background: var(--surface-primary);
+  padding: var(--spacing-xxl);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--error-red);
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+}
+
+.errorIcon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-lg);
+  color: var(--error-red);
+}
+
+.errorContent h2 {
+  font-size: var(--font-size-3xl);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.errorContent p {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
+}
+
+.errorButton {
+  background: linear-gradient(135deg, var(--error-red) 0%, var(--error-red-dark) 100%);
+  color: var(--text-primary);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-normal) ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.errorButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.errorButton:active {
+  transform: translateY(0);
+}
+
+/* ===== UNKNOWN ROUTE ===== */
+.unknownRoute {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--spacing-xl);
+}
+
+.unknownRouteContent {
+  text-align: center;
+  background: var(--surface-primary);
+  padding: var(--spacing-xxl);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-primary);
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+}
+
+.unknownRouteIcon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-muted);
+}
+
+.unknownRouteContent h2 {
+  font-size: var(--font-size-3xl);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.unknownRouteContent p {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
+}
+
+.unknownRouteButton {
+  background: linear-gradient(135deg, var(--iawfpidm-accent) 0%, var(--iawfpidm-accent-dark) 100%);
+  color: var(--text-primary);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-normal) ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.unknownRouteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.unknownRouteButton:active {
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1200px) {
+  .mainContent {
+    margin-left: 260px;
+  }
+
+  .mainContent.sidebarCollapsed {
+    margin-left: 70px;
+  }
+
+  .headerBar {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .contentArea {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 968px) {
+  .mainContent {
+    margin-left: 0;
+  }
+
+  .mainContent.sidebarCollapsed {
+    margin-left: 0;
+  }
+
+  .headerBar {
+    padding: var(--spacing-md);
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+
+  .headerLeft,
+  .headerRight {
+    justify-content: space-between;
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-xl);
+  }
+
+  .vehicleInfo,
+  .sessionInfo {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .contentArea {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .headerBar {
+    padding: var(--spacing-sm);
+  }
+
+  .headerLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .headerRight {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .pageInfo {
+    order: 2;
+  }
+
+  .headerBackButton {
+    order: 1;
+    align-self: flex-start;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .breadcrumb {
+    font-size: var(--font-size-xs);
+  }
+
+  .vehicleInfo,
+  .sessionInfo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-sm);
+  }
+
+  .vehicleDetails,
+  .sessionDetails {
+    align-items: center;
+  }
+
+  .contentArea {
+    padding: var(--spacing-sm);
+  }
+
+  .errorContent,
+  .unknownRouteContent {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .headerBar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .breadcrumbLabel {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vehicleModel,
+  .sessionStatus {
+    font-size: var(--font-size-xs);
+  }
+
+  .vehicleVin,
+  .sessionId {
+    font-size: 10px;
+  }
+}
+
+/* ===== LOADING STATES ===== */
+.mainContent:empty::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-primary);
+  border-top: 3px solid var(--iawfpidm-accent);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .mainContent,
+  .headerBackButton,
+  .sessionIcon,
+  .errorButton,
+  .unknownRouteButton {
+    transition: none;
+    animation: none;
+  }
+
+  .sessionIcon {
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .headerBar {
+    border-bottom-width: 3px;
+  }
+
+  .vehicleInfo,
+  .sessionInfo {
+    border-width: 2px;
+  }
+
+  .errorContent,
+  .unknownRouteContent {
+    border-width: 3px;
+  }
+}
+
+/* ===== FOCUS STATES ===== */
+.headerBackButton:focus,
+.errorButton:focus,
+.unknownRouteButton:focus {
+  outline: 2px solid var(--focus-outline);
+  outline-offset: 2px;
+}
+
+.breadcrumbLabel:focus {
+  outline: 2px solid var(--focus-outline);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .mainApplication {
+    background: white;
+    color: black;
+  }
+
+  .headerBar {
+    background: white;
+    border-bottom: 2px solid black;
+    box-shadow: none;
+  }
+
+  .vehicleInfo,
+  .sessionInfo {
+    background: white;
+    border: 1px solid black;
+  }
+
+  .contentArea {
+    background: white;
+  }
+
+  .headerBackButton {
+    display: none;
+  }
+}
+
+/* ===== DARK MODE ENHANCEMENTS ===== */
+@media (prefers-color-scheme: dark) {
+  .contentArea::before {
+    background: linear-gradient(
+      180deg,
+      rgba(211, 47, 47, 0.03) 0%,
+      rgba(33, 150, 243, 0.03) 50%,
+      transparent 100%
+    );
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.mainContent {
+  contain: layout style;
+}
+
+.contentArea {
+  contain: layout style paint;
+}
+
+.headerBar {
+  will-change: transform;
+}
+
+/* ===== SCROLLBAR STYLING FOR CONTENT AREA ===== */
+.contentArea::-webkit-scrollbar {
+  width: 12px;
+}
+
+.contentArea::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.contentArea::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--background-secondary);
+}
+
+.contentArea::-webkit-scrollbar-thumb:hover {
+  background: var(--border-accent);
+}
+
+/* Firefox scrollbar */
+.contentArea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-secondary) var(--background-secondary);
+}

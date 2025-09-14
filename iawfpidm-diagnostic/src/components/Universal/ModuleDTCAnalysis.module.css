@@ -1,0 +1,134 @@
+/* IAWFPIDM Module DTC Analysis Styles - Version 2.1.0 */
+.dtcAnalysis {
+  padding: var(--spacing-xl);
+  background: var(--background-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.header h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--spacing-lg);
+  color: var(--text-tertiary);
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-base);
+}
+
+.dtcList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dtcItem {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  transition: transform var(--duration-normal) ease;
+  cursor: pointer;
+}
+
+.dtcItem:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--iawfpidm-accent);
+}
+
+.dtcHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.dtcCode {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dtcSeverity {
+  font-size: var(--font-size-sm);
+  color: var(--warning-orange);
+  font-weight: 600;
+}
+
+.dtcDesc {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.freezeFrame {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.freezeFrame ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-sm) 0;
+}
+
+.freezeFrame li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.fail {
+  color: var(--error-red);
+  font-weight: 600;
+  margin-left: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+  .dtcAnalysis {
+    padding: var(--spacing-md);
+  }
+  .dtcItem {
+    padding: var(--spacing-lg);
+  }
+  .header h1 {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dtcItem,
+  .dtcAnalysis {
+    transition: none;
+  }
+}
