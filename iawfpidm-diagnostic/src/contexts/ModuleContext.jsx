@@ -55,14 +55,14 @@ export const ModuleProvider = ({ children }) => {
    * Initialize IAWFPIDM module system
    */
   const initializeModuleSystem = () => {
-    console.log('🔧 Initializing IAWFPIDM Universal Module System...');
+    console.log('\u{1F527} Initializing IAWFPIDM Universal Module System...');
 
     const modules = [
       {
         id: 'EMS',
         name: 'Engine Management System',
         description: 'Engine control and performance monitoring',
-        icon: '🔧',
+        icon: '\u{1F527}', // 🔧
         category: 'Powertrain',
         dtcCount: 8,
         color: '#ff6b35',
@@ -86,7 +86,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'TCU',
         name: 'Transmission Control Unit',
         description: 'Automatic transmission management',
-        icon: '⚙️',
+        icon: '\u2699\uFE0F', // ⚙️
         category: 'Powertrain',
         dtcCount: 5,
         color: '#9c27b0',
@@ -110,7 +110,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'ESP',
         name: 'Electronic Stability Program',
         description: 'Vehicle stability and traction control',
-        icon: '🛡️',
+        icon: '\u{1F6E1}\uFE0F', // 🛡️
         category: 'Chassis',
         dtcCount: 4,
         color: '#2196f3',
@@ -134,7 +134,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'ESCL',
         name: 'Electronic Steering Column Lock',
         description: 'Steering column security system',
-        icon: '🔒',
+        icon: '\u{1F512}', // 🔒
         category: 'Security',
         dtcCount: 2,
         color: '#795548',
@@ -158,7 +158,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'PKE',
         name: 'Passive Keyless Entry',
         description: 'Keyless access and start system',
-        icon: '🗝️',
+        icon: '\u{1F5DD}\uFE0F', // 🗝️
         category: 'Body',
         dtcCount: 3,
         color: '#607d8b',
@@ -182,7 +182,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'SRS',
         name: 'Supplemental Restraint System',
         description: 'Airbag and safety systems',
-        icon: '🛡️',
+        icon: '\u{1F6E1}\uFE0F', // 🛡️
         category: 'Safety',
         dtcCount: 6,
         color: '#f44336',
@@ -193,12 +193,12 @@ export const ModuleProvider = ({ children }) => {
           individual_freeze_frames: true,
           ecu_identification: true,
           live_data: true,
-          actuator_testing: false, // Safety restriction
+          actuator_testing: false,
           diagnostic_routines: true
         },
         protocols: ['UDS', 'KWP2000'],
         supportedServices: ['01', '02', '03', '04', '22'],
-        actuatorCount: 0, // No actuator testing for safety
+        actuatorCount: 0,
         routineCount: 3,
         liveDataParameters: 15
       },
@@ -206,7 +206,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'MBFM',
         name: 'Multi-Body Frame Module',
         description: 'Body control and comfort functions',
-        icon: '🚗',
+        icon: '\u{1F697}', // 🚗
         category: 'Body',
         dtcCount: 7,
         color: '#4caf50',
@@ -230,7 +230,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'SVS',
         name: 'Service Vehicle Soon',
         description: 'Dashboard data and service indicators',
-        icon: '🖥️',
+        icon: '\u{1F5A5}\uFE0F', // 🖥️
         category: 'Information',
         dtcCount: 6,
         color: '#ff9800',
@@ -254,7 +254,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'ABS',
         name: 'Anti-lock Braking System',
         description: 'Brake system control and monitoring',
-        icon: '🛑',
+        icon: '\u{1F6D1}', // 🛑
         category: 'Safety',
         dtcCount: 3,
         color: '#e91e63',
@@ -278,7 +278,7 @@ export const ModuleProvider = ({ children }) => {
         id: 'CCM',
         name: 'Climate Control Module',
         description: 'HVAC and climate management',
-        icon: '❄️',
+        icon: '\u2744\uFE0F', // ❄️
         category: 'Comfort',
         dtcCount: 4,
         color: '#00bcd4',
@@ -301,7 +301,7 @@ export const ModuleProvider = ({ children }) => {
     ];
 
     setAvailableModules(modules);
-    console.log(\`📋 Loaded \${modules.length} ECU modules for universal diagnostics\`);
+    console.log(`\u{1F4CB} Loaded ${modules.length} ECU modules for universal diagnostics`);
 
     // Initialize module status
     const initialStatus = {};
@@ -341,7 +341,7 @@ export const ModuleProvider = ({ children }) => {
 
       console.log('✅ Module progress and tab states restored');
     } catch (error) {
-      console.error('❌ Error loading saved module progress:', error);
+      console.error('\u274C Error loading saved module progress:', error);
     }
   };
 
@@ -351,11 +351,11 @@ export const ModuleProvider = ({ children }) => {
   const selectModule = useCallback((moduleId) => {
     const module = availableModules.find(m => m.id === moduleId);
     if (!module) {
-      console.error(\`❌ Module not found: \${moduleId}\`);
+      console.error(`\u274C Module not found: ${moduleId}`);
       return { success: false, error: 'Module not found' };
     }
 
-    console.log(\`🔧 Selected module: \${module.name} (\${moduleId})\`);
+    console.log(`\u{1F527} Selected module: ${module.name} (${moduleId})`);
     setActiveModule(module);
 
     // Initialize module progress if not exists
@@ -382,10 +382,10 @@ export const ModuleProvider = ({ children }) => {
     if (!unlockedTabs[moduleId]) {
       const initialTabs = {
         DTC: true,                    // Always unlocked
-        ECU_Id: false,               // Unlocked after DTC analysis
-        Live_Data: false,            // Unlocked after ECU ID
-        Actuators: false,            // Unlocked after ECU ID
-        Routines: false              // Unlocked after ECU ID
+        ECU_Id: false,                // Unlocked after DTC analysis
+        Live_Data: false,             // Unlocked after ECU ID
+        Actuators: false,             // Unlocked after ECU ID
+        Routines: false               // Unlocked after ECU ID
       };
 
       setUnlockedTabs(prev => ({
@@ -413,11 +413,11 @@ export const ModuleProvider = ({ children }) => {
    */
   const updateModuleProgress = useCallback((moduleId, progressData) => {
     if (!moduleId || !availableModules.find(m => m.id === moduleId)) {
-      console.error(\`❌ Invalid module ID: \${moduleId}\`);
+      console.error(`\u274C Invalid module ID: ${moduleId}`);
       return { success: false, error: 'Invalid module ID' };
     }
 
-    console.log(\`📊 Updating \${moduleId} progress:\`, progressData);
+    console.log(`\u{1F4CA} Updating ${moduleId} progress:`, progressData);
 
     // Update progress
     const updatedProgress = {
@@ -438,7 +438,7 @@ export const ModuleProvider = ({ children }) => {
     // Progressive unlocking logic
     if (updatedProgress.dtcAnalyzed && updatedProgress.categoriesViewed?.length > 0) {
       newUnlockedTabs.ECU_Id = true;
-      console.log(\`🔓 ECU ID tab unlocked for \${moduleId}\`);
+      console.log(`\u{1F513} ECU ID tab unlocked for ${moduleId}`);
     }
 
     if (updatedProgress.ecuIdAccessed) {
@@ -456,7 +456,7 @@ export const ModuleProvider = ({ children }) => {
         newUnlockedTabs.Routines = true;
       }
 
-      console.log(\`🔓 Advanced tabs unlocked for \${moduleId}:`, {
+      console.log(`\u{1F512} Advanced tabs unlocked for ${moduleId}:`, {
         liveData: newUnlockedTabs.Live_Data,
         actuators: newUnlockedTabs.Actuators,
         routines: newUnlockedTabs.Routines
@@ -479,7 +479,7 @@ export const ModuleProvider = ({ children }) => {
     updateModuleHistory(moduleId, progressData);
 
     return { success: true, progress: updatedProgress, tabs: newUnlockedTabs };
-  }, [moduleId, availableModules, moduleProgress, unlockedTabs]);
+  }, [availableModules, moduleProgress, unlockedTabs]);
 
   /**
    * Update module history for tracking
@@ -489,7 +489,7 @@ export const ModuleProvider = ({ children }) => {
     const newActivity = {
       timestamp: new Date().toISOString(),
       activity: activity,
-      sessionId: \`SESS_\${Date.now()}\`
+      sessionId: `SESS_${Date.now()}`
     };
 
     const updatedHistory = [newActivity, ...currentHistory].slice(0, 50); // Keep last 50 activities
@@ -572,7 +572,7 @@ export const ModuleProvider = ({ children }) => {
    * Clear active module
    */
   const clearActiveModule = useCallback(() => {
-    console.log('🗑️ Clearing active module');
+    console.log('\u{1F5D1} Clearing active module');
     setActiveModule(null);
 
     return { success: true };
@@ -583,7 +583,7 @@ export const ModuleProvider = ({ children }) => {
    */
   const resetModuleProgress = useCallback((moduleId = null) => {
     if (moduleId) {
-      console.log(\`🔄 Resetting progress for module: \${moduleId}\`);
+      console.log(`\u{1F504} Resetting progress for module: ${moduleId}`);
 
       setModuleProgress(prev => {
         const updated = { ...prev };
@@ -597,7 +597,7 @@ export const ModuleProvider = ({ children }) => {
         return updated;
       });
     } else {
-      console.log('🔄 Resetting all module progress');
+      console.log('\u{1F504} Resetting all module progress');
       setModuleProgress({});
       setUnlockedTabs({});
     }
@@ -647,8 +647,8 @@ export const ModuleProvider = ({ children }) => {
    * Get real-time module data
    */
   const getModuleData = useCallback((moduleId, dataType = null) => {
-    const moduleData = moduleData[moduleId] || {};
-    return dataType ? moduleData[dataType] : moduleData;
+    const mData = moduleData[moduleId] || {};
+    return dataType ? mData[dataType] : mData;
   }, [moduleData]);
 
   // Context value

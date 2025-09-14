@@ -79,21 +79,21 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
       id: 'vehicle_history',
       label: 'Vehicle History',
       icon: '📋',
-      enabled: false, // Disabled initially
+      enabled: false,
       description: 'Select from previously configured vehicles'
     },
     {
       id: 'import_data',
       label: 'Import Data',
       icon: '📁',
-      enabled: false, // Disabled initially
+      enabled: false,
       description: 'Import vehicle data from file'
     },
     {
       id: 'fleet_management',
       label: 'Fleet Management',
       icon: '🚛',
-      enabled: false, // Disabled initially
+      enabled: false,
       description: 'Manage multiple vehicles'
     }
   ];
@@ -105,16 +105,15 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
     console.log('🚗 Initializing IAWFPIDM Vehicle Setup');
     updateLastActivity();
 
-    // Load available models
     if (availableModels.length > 0) {
       const mahindraModels = availableModels;
       setFilteredModels(mahindraModels);
-      console.log(\`📊 Loaded \${mahindraModels.length} Mahindra models\`);
+      console.log(`Loaded ${mahindraModels.length} Mahindra models`);
     }
   }, [availableModels]);
 
   /**
-   * Update available variants when model changes
+   * Update available variants and engines when model changes
    */
   useEffect(() => {
     if (formData.model) {
@@ -124,7 +123,6 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
       setAvailableVariants(variants);
       setAvailableEngines(engines);
 
-      // Reset dependent fields
       setFormData(prev => ({
         ...prev,
         variant: variants.length > 0 ? variants[0] : '',
@@ -151,7 +149,6 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
       [name]: value
     }));
 
-    // Clear specific field errors
     if (validationErrors[name]) {
       setValidationErrors(prev => ({
         ...prev,
@@ -195,7 +192,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
       const year = parseInt(formData.year);
       const currentYear = new Date().getFullYear();
       if (year < 2010 || year > currentYear + 1) {
-        errors.year = \`Year must be between 2010 and \${currentYear + 1}\`;
+        errors.year = `Year must be between 2010 and ${currentYear + 1}`;
         isValid = false;
       }
     }
@@ -213,12 +210,11 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
   };
 
   /**
-   * Handle VIN input with real-time validation
+   * Handle VIN input with live validation
    */
   const handleVINInput = (e) => {
     let value = e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
 
-    // Limit to 17 characters
     if (value.length > 17) {
       value = value.substring(0, 17);
     }
@@ -258,10 +254,10 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
         if (sessionResult.success) {
           console.log('✅ Diagnostic session started successfully');
 
-          // Enable additional tabs for future use
+          // Enable additional tabs
           setEnabledTabs(['new_vehicle', 'vehicle_history']);
 
-          // Navigate to dashboard
+          // Notify parent component
           if (onSetupComplete) {
             onSetupComplete();
           }
@@ -277,15 +273,15 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
   };
 
   /**
-   * Handle tab change (only enabled tabs)
+   * Handle tab changes (only enabled tabs)
    */
   const handleTabChange = (tabId) => {
     if (enabledTabs.includes(tabId)) {
       setActiveTab(tabId);
       updateLastActivity();
-      console.log(\`📑 Tab changed to: \${tabId}\`);
+      console.log(`📑 Tab changed to: ${tabId}`);
     } else {
-      console.log(\`🔒 Tab \${tabId} is not enabled\`);
+      console.log(`🔒 Tab ${tabId} is not enabled`);
     }
   };
 
@@ -297,44 +293,36 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
 
     const result = selectVehicleFromHistory(vehicle);
     if (result.success) {
-      // Start diagnostic session
       const sessionResult = await startDiagnosticSession(result.vehicle);
 
-      if (sessionResult.success) {
-        if (onSetupComplete) {
-          onSetupComplete();
-        }
+      if (sessionResult.success && onSetupComplete) {
+        onSetupComplete();
       }
     }
-
     updateLastActivity();
   };
 
   /**
-   * Get years for dropdown
+   * Get year options for selection
    */
   const getYearOptions = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
-
-    for (let year = currentYear + 1; year >= 2010; year--) {
-      years.push(year.toString());
+    for (let y = currentYear + 1; y >= 2010; y--) {
+      years.push(y.toString());
     }
-
     return years;
   };
 
   /**
-   * Render tab content
+   * Render tab content based on activeTab
    */
   const renderTabContent = () => {
     switch (activeTab) {
       case 'new_vehicle':
         return renderNewVehicleForm();
-
       case 'vehicle_history':
         return renderVehicleHistory();
-
       default:
         return renderNewVehicleForm();
     }
@@ -346,7 +334,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
   const renderNewVehicleForm = () => (
     <div className={styles.newVehicleForm}>
       <form onSubmit={handleSubmit} className={styles.vehicleForm}>
-        {/* Basic Information Section */}
+        {/* Basic Vehicle Info */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🚗</span>
@@ -354,35 +342,27 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
           </h3>
 
           <div className={styles.formGrid}>
-            {/* VIN Field */}
+            {/* VIN */}
             <div className={styles.formGroup}>
-              <label htmlFor="vin" className={styles.formLabel}>
-                Vehicle Identification Number (VIN) *
-              </label>
+              <label htmlFor="vin" className={styles.formLabel}>Vehicle Identification Number (VIN) *</label>
               <input
                 type="text"
                 id="vin"
                 name="vin"
                 value={formData.vin}
                 onChange={handleVINInput}
-                className={`\${styles.formInput} \${validationErrors.vin ? styles.inputError : ''}`}
+                className={`${styles.formInput} ${validationErrors.vin ? styles.inputError : ''}`}
                 placeholder="Enter 17-character VIN"
                 maxLength="17"
                 required
               />
-              {validationErrors.vin && (
-                <span className={styles.errorText}>{validationErrors.vin}</span>
-              )}
-              <div className={styles.fieldHint}>
-                VIN helps identify your vehicle's specifications automatically
-              </div>
+              {validationErrors.vin && <span className={styles.errorText}>{validationErrors.vin}</span>}
+              <div className={styles.fieldHint}>VIN helps identify your vehicle's specifications automatically</div>
             </div>
 
-            {/* Make Field */}
+            {/* Make */}
             <div className={styles.formGroup}>
-              <label htmlFor="make" className={styles.formLabel}>
-                Make *
-              </label>
+              <label htmlFor="make" className={styles.formLabel}>Make *</label>
               <select
                 id="make"
                 name="make"
@@ -395,56 +375,46 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </select>
             </div>
 
-            {/* Model Field */}
+            {/* Model */}
             <div className={styles.formGroup}>
-              <label htmlFor="model" className={styles.formLabel}>
-                Model *
-              </label>
+              <label htmlFor="model" className={styles.formLabel}>Model *</label>
               <select
                 id="model"
                 name="model"
                 value={formData.model}
                 onChange={handleInputChange}
-                className={`\${styles.formSelect} \${validationErrors.model ? styles.inputError : ''}`}
+                className={`${styles.formSelect} ${validationErrors.model ? styles.inputError : ''}`}
                 required
               >
                 <option value="">Select Model</option>
                 {filteredModels.map(model => (
-                  <optgroup key={model.category} label={model.category}>
-                    <option value={model.name}>{model.name}</option>
-                  </optgroup>
+                  <option key={model.name} value={model.name}>{model.name}</option>
                 ))}
               </select>
-              {validationErrors.model && (
-                <span className={styles.errorText}>{validationErrors.model}</span>
-              )}
+              {validationErrors.model && <span className={styles.errorText}>{validationErrors.model}</span>}
             </div>
 
-            {/* Year Field */}
+            {/* Year */}
             <div className={styles.formGroup}>
-              <label htmlFor="year" className={styles.formLabel}>
-                Year *
-              </label>
+              <label htmlFor="year" className={styles.formLabel}>Year *</label>
               <select
                 id="year"
                 name="year"
                 value={formData.year}
                 onChange={handleInputChange}
-                className={`\${styles.formSelect} \${validationErrors.year ? styles.inputError : ''}`}
+                className={`${styles.formSelect} ${validationErrors.year ? styles.inputError : ''}`}
                 required
               >
                 {getYearOptions().map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
-              {validationErrors.year && (
-                <span className={styles.errorText}>{validationErrors.year}</span>
-              )}
+              {validationErrors.year && <span className={styles.errorText}>{validationErrors.year}</span>}
             </div>
           </div>
         </div>
 
-        {/* Engine and Transmission Section */}
+        {/* Engine & Transmission */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>⚙️</span>
@@ -452,12 +422,9 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
           </h3>
 
           <div className={styles.formGrid}>
-            {/* Variant Field */}
             {availableVariants.length > 0 && (
               <div className={styles.formGroup}>
-                <label htmlFor="variant" className={styles.formLabel}>
-                  Variant
-                </label>
+                <label htmlFor="variant" className={styles.formLabel}>Variant</label>
                 <select
                   id="variant"
                   name="variant"
@@ -472,17 +439,15 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </div>
             )}
 
-            {/* Engine Type Field */}
+            {/* Engine Type */}
             <div className={styles.formGroup}>
-              <label htmlFor="engineType" className={styles.formLabel}>
-                Engine Type *
-              </label>
+              <label htmlFor="engineType" className={styles.formLabel}>Engine Type *</label>
               <select
                 id="engineType"
                 name="engineType"
                 value={formData.engineType}
                 onChange={handleInputChange}
-                className={`\${styles.formSelect} \${validationErrors.engineType ? styles.inputError : ''}`}
+                className={`${styles.formSelect} ${validationErrors.engineType ? styles.inputError : ''}`}
                 required
               >
                 <option value="">Select Engine</option>
@@ -490,16 +455,12 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
                   <option key={engine} value={engine}>{engine}</option>
                 ))}
               </select>
-              {validationErrors.engineType && (
-                <span className={styles.errorText}>{validationErrors.engineType}</span>
-              )}
+              {validationErrors.engineType && <span className={styles.errorText}>{validationErrors.engineType}</span>}
             </div>
 
-            {/* Transmission Field */}
+            {/* Transmission */}
             <div className={styles.formGroup}>
-              <label htmlFor="transmission" className={styles.formLabel}>
-                Transmission
-              </label>
+              <label htmlFor="transmission" className={styles.formLabel}>Transmission</label>
               <select
                 id="transmission"
                 name="transmission"
@@ -515,11 +476,9 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </select>
             </div>
 
-            {/* Fuel Type Field */}
+            {/* Fuel Type */}
             <div className={styles.formGroup}>
-              <label htmlFor="fuelType" className={styles.formLabel}>
-                Fuel Type
-              </label>
+              <label htmlFor="fuelType" className={styles.formLabel}>Fuel Type</label>
               <select
                 id="fuelType"
                 name="fuelType"
@@ -562,9 +521,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
 
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
-                <label htmlFor="color" className={styles.formLabel}>
-                  Color
-                </label>
+                <label htmlFor="color" className={styles.formLabel}>Color</label>
                 <input
                   type="text"
                   id="color"
@@ -577,9 +534,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="registrationNumber" className={styles.formLabel}>
-                  Registration Number
-                </label>
+                <label htmlFor="registrationNumber" className={styles.formLabel}>Registration Number</label>
                 <input
                   type="text"
                   id="registrationNumber"
@@ -592,9 +547,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="ownerName" className={styles.formLabel}>
-                  Owner Name
-                </label>
+                <label htmlFor="ownerName" className={styles.formLabel}>Owner Name</label>
                 <input
                   type="text"
                   id="ownerName"
@@ -607,9 +560,7 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="purchaseDate" className={styles.formLabel}>
-                  Purchase Date
-                </label>
+                <label htmlFor="purchaseDate" className={styles.formLabel}>Purchase Date</label>
                 <input
                   type="date"
                   id="purchaseDate"
@@ -630,12 +581,10 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
               <div className={styles.progressBar}>
                 <div 
                   className={styles.progressFill}
-                  style={{ width: \`\${setupProgress}%\` }}
+                  style={{ width: `${setupProgress}%` }}
                 ></div>
               </div>
-              <div className={styles.progressText}>
-                Setting up vehicle... {setupProgress}%
-              </div>
+              <div className={styles.progressText}>Setting up vehicle... {setupProgress}%</div>
             </div>
           </div>
         )}
@@ -667,123 +616,46 @@ const NewVehicleSetup = ({ user, onSetupComplete, onNavigate }) => {
   /**
    * Render vehicle history tab
    */
-  const renderVehicleHistory = () => (
-    <div className={styles.vehicleHistory}>
-      <div className={styles.historyHeader}>
-        <h3>Recent Vehicles</h3>
-        <p>Select a previously configured vehicle to continue diagnostics</p>
-      </div>
-
-      {vehicleHistory.length === 0 ? (
+  function renderVehicleHistory() {
+    if (vehicleHistory.length === 0) {
+      return (
         <div className={styles.emptyHistory}>
           <div className={styles.emptyIcon}>📋</div>
           <h4>No Vehicle History</h4>
           <p>Configure your first vehicle using the "New Vehicle" tab</p>
         </div>
-      ) : (
-        <div className={styles.historyList}>
-          {vehicleHistory.map((vehicle, index) => (
-            <div
-              key={vehicle.id}
-              className={styles.historyItem}
-              onClick={() => handleHistorySelection(vehicle)}
-            >
-              <div className={styles.vehicleIcon}>🚗</div>
-              <div className={styles.vehicleInfo}>
-                <div className={styles.vehicleName}>
-                  {vehicle.make} {vehicle.model} {vehicle.year}
-                </div>
-                <div className={styles.vehicleDetails}>
-                  VIN: {vehicle.vin} • {vehicle.engineType}
-                </div>
-                <div className={styles.vehicleMeta}>
-                  Last accessed: {new Date(vehicle.lastAccessed).toLocaleDateString()}
-                </div>
+      );
+    }
+
+    return (
+      <div className={styles.historyList}>
+        {vehicleHistory.map(vehicle => (
+          <div
+            key={vehicle.id}
+            className={styles.historyItem}
+            onClick={() => handleHistorySelection(vehicle)}
+          >
+            <div className={styles.vehicleIcon}>🚗</div>
+            <div className={styles.vehicleInfo}>
+              <div className={styles.vehicleName}>
+                {vehicle.make} {vehicle.model} {vehicle.year}
               </div>
-              <div className={styles.selectButton}>
-                <span>Select</span>
-                <span className={styles.selectIcon}>→</span>
+              <div className={styles.vehicleDetails}>
+                VIN: {vehicle.vin} • {vehicle.engineType}
+              </div>
+              <div className={styles.vehicleMeta}>
+                Last accessed: {new Date(vehicle.lastAccessed).toLocaleDateString()}
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  return (
-    <div className={styles.newVehicleSetup}>
-      {/* Header */}
-      <div className={styles.setupHeader}>
-        <div className={styles.headerContent}>
-          <div className={styles.headerLeft}>
-            <h1 className={styles.setupTitle}>Vehicle Setup</h1>
-            <p className={styles.setupSubtitle}>
-              Configure your vehicle for IAWFPIDM diagnostic analysis
-            </p>
-          </div>
-          <div className={styles.headerRight}>
-            <div className={styles.userInfo}>
-              <div className={styles.userIcon}>👤</div>
-              <div className={styles.userDetails}>
-                <div className={styles.userName}>{user.name}</div>
-                <div className={styles.userRole}>{user.role}</div>
-              </div>
+            <div className={styles.selectButton}>
+              <span>Select</span>
+              <span className={styles.selectIcon}>→</span>
             </div>
           </div>
-        </div>
+        ))}
       </div>
-
-      {/* Tab Navigation */}
-      <div className={styles.tabNavigation}>
-        <div className={styles.tabContainer}>
-          {tabConfig.map(tab => (
-            <button
-              key={tab.id}
-              className={`
-                \${styles.tab}
-                \${activeTab === tab.id ? styles.active : ''}
-                \${!tab.enabled ? styles.disabled : ''}
-              `}
-              onClick={() => handleTabChange(tab.id)}
-              disabled={!tab.enabled}
-              title={tab.enabled ? tab.description : 'This tab will be enabled after vehicle setup'}
-            >
-              <span className={styles.tabIcon}>{tab.icon}</span>
-              <span className={styles.tabLabel}>{tab.label}</span>
-              {!tab.enabled && (
-                <span className={styles.disabledIcon}>🔒</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <div className={styles.tabContent}>
-        {renderTabContent()}
-      </div>
-
-      {/* Setup Errors */}
-      {Object.keys(setupErrors).length > 0 && (
-        <div className={styles.setupErrors}>
-          <div className={styles.errorContainer}>
-            <div className={styles.errorHeader}>
-              <span className={styles.errorIcon}>⚠️</span>
-              <span>Setup Errors</span>
-            </div>
-            <div className={styles.errorList}>
-              {Object.entries(setupErrors).map(([field, error]) => (
-                <div key={field} className={styles.errorItem}>
-                  <strong>{field}:</strong> {error}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  }
 };
 
 export default NewVehicleSetup;
