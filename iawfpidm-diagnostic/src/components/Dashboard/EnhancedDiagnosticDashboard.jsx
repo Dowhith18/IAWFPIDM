@@ -299,6 +299,20 @@ const EnhancedDiagnosticDashboard = ({
       )}
     </div>
   );
+const initializeDashboard = async () => {
+  setIsInitializing(true);
+  try {
+    updateLastActivity();
+    // Simulate initialization
+    await new Promise(r => setTimeout(r, 1000));
+    const stats = getModuleStatistics();
+    setModuleStats(stats);
+  } catch (error) {
+    setDashboardError(error.message);
+  } finally {
+    setIsInitializing(false);
+  }
+};
 
   if (isInitializing) {
     return (

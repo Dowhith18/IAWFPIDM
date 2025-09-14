@@ -5,7 +5,7 @@ import styles from './Sidebar.module.css';
 /**
  * Sidebar Component
  *
- * Branded sidebar navigation for IAWFPIDM system.
+ * Branded sidebar navigation for IAWPIDM system.
  * Responsive, collapsible sidebar with active link highlighting.
  */
 const Sidebar = () => {
@@ -25,8 +25,12 @@ const Sidebar = () => {
   return (
     <div className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
       <div className={styles.brand}>
-        <span className={styles.logo}>IAWFPIDM</span>
-        <button className={styles.toggleBtn} onClick={toggleSidebar} aria-label="Toggle Sidebar">
+        <span className={styles.logo}>IAWPIDM</span>
+        <button
+          className={styles.toggleBtn}
+          onClick={toggleSidebar}
+          aria-label="Toggle Sidebar"
+        >
           {collapsed ? '→' : '←'}
         </button>
       </div>

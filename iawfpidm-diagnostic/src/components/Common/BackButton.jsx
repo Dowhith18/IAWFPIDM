@@ -5,11 +5,11 @@ import styles from './BackButton.module.css';
 /**
  * BackButton Component
  *
- * Universal back navigation button using React Router's navigate hook.
- * Falls back to a provided default path if history stack is not available.
+ * A universal back navigation button using React Router's navigate hook.
+ * Falls back to a provided default path if the browser history stack is not available.
  *
  * Props:
- * - to?: string - fallback path if history stack is empty (default: '/')
+ * - to?: string - Fallback path if history stack is empty (default: '/')
  */
 const BackButton = ({ to = '/' }) => {
   const navigate = useNavigate();

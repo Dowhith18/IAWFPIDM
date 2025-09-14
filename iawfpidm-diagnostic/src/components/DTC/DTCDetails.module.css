@@ -1,0 +1,97 @@
+/* DTCDetails.module.css */
+
+/* Container for DTC details */
+.dtcDetailsContainer {
+  padding: 16px;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text, #333);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Heading */
+.dtcTitle {
+  font-size: var(--font-size-xl, 20px);
+  font-weight: var(--font-weight-semibold, 600);
+  margin-bottom: 12px;
+  color: var(--color-primary, #2196f3);
+}
+
+/* Parameter list */
+.paramList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual parameter item */
+.paramItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--color-background, #f9fafb);
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border, #ddd);
+  transition: background-color 0.3s ease;
+}
+
+.paramItem:hover {
+  background-color: var(--color-bg-2, #e6eaf0);
+}
+
+/* Parameter name */
+.paramName {
+  font-weight: var(--font-weight-semibold, 550);
+  color: var(--color-text-secondary, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-basis: 40%;
+  white-space: nowrap;
+}
+
+/* Parameter value */
+.paramValue {
+  font-weight: var(--font-weight-bold, 600);
+  color: var(--color-text, #222);
+  text-align: right;
+  flex-basis: 50%;
+  white-space: nowrap;
+}
+
+/* Pass/fail indicators */
+.pass {
+  color: var(--color-success, #218c74);
+  font-weight: 600;
+}
+
+.fail {
+  color: var(--color-error, #c2185b);
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .paramItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .paramName, .paramValue {
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .paramValue {
+    margin-top: 4px;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .paramItem {
+    transition: none;
+  }
+}

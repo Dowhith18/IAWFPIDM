@@ -1,0 +1,130 @@
+/* DTCAnalysis.module.css */
+
+/* Container for the full DTC Analysis page */
+.dtcAnalysisContainer {
+  padding: 16px;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text, #333);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Heading styles */
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: var(--font-size-2xl, 24px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-primary, #2196f3);
+}
+
+/* DTC list container */
+.dtcList {
+  flex-grow: 1;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-card-border, #ddd);
+}
+
+/* Individual DTC item */
+.dtcItem {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-card-border-inner, #eee);
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.dtcItem:hover {
+  background-color: var(--color-secondary-hover, #f0f6fb);
+}
+
+/* DTC Code and Severity Row */
+.dtcCodeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* DTC code text */
+.dtcCode {
+  font-weight: var(--font-weight-bold, 600);
+  font-size: var(--font-size-lg, 18px);
+  color: var(--color-text, #333);
+  letter-spacing: 1px;
+}
+
+/* Severity badge */
+.severity {
+  font-weight: var(--font-weight-semibold, 550);
+  padding: 4px 12px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-sm, 12px);
+  color: #fff;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Severity colors */
+.severity-critical {
+  background-color: var(--color-error, #c0152f);
+}
+
+.severity-high {
+  background-color: var(--color-warning, #a84b2f);
+}
+
+.severity-medium {
+  background-color: var(--color-primary, #2196f3);
+}
+
+.severity-low {
+  background-color: var(--color-success, #21808d);
+}
+
+/* DTC description text */
+.dtcDescription {
+  font-size: var(--font-size-base, 14px);
+  color: var(--color-text-secondary, #666);
+  line-height: 1.4;
+}
+
+/* Freeze frame summary section */
+.freezeFrameSummary {
+  margin-top: 10px;
+  font-size: var(--font-size-sm, 12px);
+  color: var(--color-text-secondary, #666);
+  font-style: italic;
+}
+
+/* No DTCs message */
+.noDTCsMessage {
+  padding: 40px;
+  text-align: center;
+  font-size: var(--font-size-lg, 16px);
+  color: var(--color-text-secondary, #999);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dtcItem {
+    padding: 10px 12px;
+  }
+  .dtcCode {
+    font-size: var(--font-size-base, 16px);
+  }
+  .severity {
+    font-size: var(--font-size-xs, 10px);
+    padding: 3px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dtcItem {
+    transition: none;
+  }
+}
