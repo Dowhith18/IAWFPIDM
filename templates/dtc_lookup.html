@@ -1,0 +1,774 @@
+{% extends "base.html" %}
+{% block title %}DTC Lookup{% endblock %}
+
+{% block content %}
+    <style>
+        .dtc-lens {
+            --dtc-primary: #111111;
+            --dtc-primary-strong: #000000;
+            --dtc-surface: #ffffff;
+            --dtc-surface-strong: #f7f7f8;
+            --dtc-surface-muted: #f0f1f3;
+            --dtc-border: #d4d7dc;
+            --dtc-text: #111827;
+            --dtc-muted: #4b5563;
+            --dtc-severity-high: #b91c1c;
+            --dtc-severity-medium: #b45309;
+            --dtc-severity-low: #047857;
+            --dtc-shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            color: var(--dtc-text);
+            padding: clamp(26px, 4vw, 52px);
+            background: linear-gradient(160deg, #f9fafb 0%, #ffffff 70%);
+            border-radius: 28px;
+            box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.04);
+        }
+
+        .dtc-lens__chrome {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+            background: var(--dtc-surface);
+            padding: clamp(24px, 4vw, 38px);
+            border-radius: 24px;
+            border: 1px solid var(--dtc-border);
+            box-shadow: var(--dtc-shadow);
+        }
+
+        .dtc-lens__sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--dtc-surface-strong);
+            border-radius: 20px;
+            border: 1px solid var(--dtc-border);
+            padding: 24px;
+            max-height: none;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .dtc-lens__header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dtc-lens__title {
+            font-size: clamp(26px, 3vw, 32px);
+            font-weight: 900;
+            margin: 0;
+            color: var(--dtc-primary);
+        }
+
+        .dtc-lens__subtitle {
+            margin: 0;
+            font-size: 15px;
+            color: var(--dtc-muted);
+        }
+
+        .dtc-lens__badge {
+            align-self: flex-start;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: #111111;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .dtc-input {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--dtc-border);
+            background: #ffffff;
+            box-shadow: inset 0 -1px 0 rgba(17, 24, 39, 0.06);
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .dtc-input:focus-within {
+            border-color: #111111;
+            box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.18);
+        }
+
+        .dtc-input input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--dtc-text);
+            outline: none;
+        }
+
+        .dtc-input input::placeholder {
+            color: var(--dtc-muted);
+        }
+
+        .dtc-filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .dtc-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--dtc-border);
+            background: #ffffff;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dtc-muted);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+        }
+
+        .dtc-chip:hover,
+        .dtc-chip:focus-visible {
+            background: #111111;
+            border-color: #111111;
+            color: #ffffff;
+        }
+
+        .dtc-results {
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .dtc-results::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .dtc-results::-webkit-scrollbar-thumb {
+            background: rgba(17, 24, 39, 0.2);
+            border-radius: 999px;
+        }
+
+        .dtc-result {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 14px;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid var(--dtc-border);
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f7f8 90%);
+            cursor: pointer;
+            transition: border 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08);
+        }
+
+        .dtc-result:focus-visible,
+        .dtc-result:hover {
+            border-color: #111111;
+            box-shadow: 0 12px 28px rgba(17, 24, 39, 0.12);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f1f1 90%);
+        }
+
+        .dtc-result.is-active {
+            border-color: #000000;
+            box-shadow: 0 16px 32px rgba(17, 24, 39, 0.16);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #f9f9f9 0%, #eaeaea 100%);
+        }
+
+        .dtc-result__icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: rgba(17, 17, 17, 0.08);
+            color: var(--dtc-primary);
+        }
+
+        .dtc-result__icon.severity-high {
+            background: rgba(185, 28, 28, 0.12);
+            color: var(--dtc-severity-high);
+        }
+
+        .dtc-result__icon.severity-medium {
+            background: rgba(180, 83, 9, 0.12);
+            color: var(--dtc-severity-medium);
+        }
+
+        .dtc-result__icon.severity-low {
+            background: rgba(4, 120, 87, 0.12);
+            color: var(--dtc-severity-low);
+        }
+
+        .dtc-result__code {
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0 0 4px;
+            color: var(--dtc-primary);
+        }
+
+        .dtc-result__description {
+            margin: 0 0 4px;
+            font-size: 14px;
+            color: var(--dtc-text);
+        }
+
+        .dtc-result__meta {
+            margin: 0;
+            font-size: 12px;
+            color: var(--dtc-muted);
+            font-weight: 500;
+        }
+
+        .dtc-lens__detail {
+            background: var(--dtc-surface);
+            border-radius: 24px;
+            border: 1px solid var(--dtc-border);
+            box-shadow: 0 22px 46px rgba(17, 24, 39, 0.12);
+            display: flex;
+            flex-direction: column;
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        .dtc-detail__header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 28px clamp(20px, 3vw, 36px);
+            border-bottom: 1px solid var(--dtc-border);
+            background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 80%);
+        }
+
+        .dtc-detail__code-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .dtc-detail__code {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 900;
+            color: var(--dtc-primary);
+        }
+
+        .dtc-detail__severity {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(17, 17, 17, 0.08);
+            color: var(--dtc-primary);
+        }
+
+        .dtc-detail__severity.is-high {
+            background: rgba(185, 28, 28, 0.12);
+            color: var(--dtc-severity-high);
+        }
+
+        .dtc-detail__severity.is-medium {
+            background: rgba(180, 83, 9, 0.12);
+            color: var(--dtc-severity-medium);
+        }
+
+        .dtc-detail__severity.is-low {
+            background: rgba(4, 120, 87, 0.12);
+            color: var(--dtc-severity-low);
+        }
+
+        .dtc-detail__description {
+            margin: 6px 0 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dtc-muted);
+        }
+
+        .dtc-detail__system {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(75, 85, 99, 0.85);
+            font-weight: 500;
+        }
+
+        .dtc-detail__actions {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .dtc-icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid var(--dtc-border);
+            background: var(--color-surface, #ffffff);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dtc-primary);
+            text-decoration: none;
+            transition: border 0.2s ease, color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+        }
+
+        .dtc-icon-btn .material-symbols-outlined,
+        .dtc-icon-btn .fa-solid {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .dtc-icon-btn:hover,
+        .dtc-icon-btn:focus-visible {
+            border-color: #111111;
+            color: #ffffff;
+            background: #111111;
+            transform: translateY(-1px);
+        }
+
+        .dtc-detail__body {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            padding: clamp(20px, 3vw, 32px);
+            background: var(--dtc-surface-strong);
+        }
+
+        .dtc-detail__body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .dtc-detail__body::-webkit-scrollbar-thumb {
+            background: rgba(17, 24, 39, 0.2);
+            border-radius: 999px;
+        }
+
+        .dtc-section {
+            margin-bottom: 24px;
+            padding: 20px;
+            border: 1px solid var(--dtc-border);
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dtc-section__title {
+            margin: 0 0 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dtc-primary);
+        }
+
+        .dtc-section__html {
+            font-size: 15px;
+            color: var(--dtc-text);
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 {
+            border-collapse: collapse;
+            border: 1px solid rgba(17, 24, 39, 0.12) !important;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #ffffff !important;
+            box-shadow: 0 6px 16px rgba(17, 24, 39, 0.08);
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 th,
+        .dtc-section__html table.x-tgroup-1-0 td {
+            border: 1px solid rgba(17, 24, 39, 0.12) !important;
+            padding: 10px 12px !important;
+            color: var(--dtc-text) !important;
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 th {
+            background: #111111 !important;
+            color: #ffffff !important;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 td {
+            background: #ffffff !important;
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 tr:nth-child(even) td {
+            background: #f5f5f5 !important;
+        }
+
+        .dtc-section__html table.x--listitem-as-table {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .dtc-section__html table.x--listitem-as-table td {
+            border: none !important;
+            padding: 4px 0 !important;
+            color: var(--dtc-text) !important;
+        }
+
+        .dtc-section__html [style*="background-color: #ffffff"],
+        .dtc-section__html [style*="background-color:#ffffff"] {
+            background-color: #ffffff !important;
+        }
+
+        .dtc-section__html [style*="background-color: #95b3d7"],
+        .dtc-section__html [style*="background-color:#95b3d7"] {
+            background: #111111 !important;
+            color: #ffffff !important;
+        }
+
+        .dtc-section__html [style*="color: #330099"],
+        .dtc-section__html [style*="color:#330099"] {
+            color: var(--dtc-primary) !important;
+        }
+
+        .dtc-section__html [style*="color: #ff0000"],
+        .dtc-section__html [style*="color:#ff0000"] {
+            color: var(--dtc-severity-high) !important;
+        }
+
+        .dtc-section__html [style*="color: #008000"],
+        .dtc-section__html [style*="color:#008000"] {
+            color: var(--dtc-severity-low) !important;
+        }
+
+        .dtc-section__html table.x-tgroup-1-0 .x-b-1-0 {
+            color: inherit !important;
+        }
+
+        .dtc-section__text {
+            background: #f5f5f5;
+            border: 1px solid rgba(17, 24, 39, 0.12);
+            border-radius: 12px;
+            padding: 16px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--dtc-text);
+        }
+
+        .dtc-section__image {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            border-radius: 14px;
+            border: 1px solid var(--dtc-border);
+            background: #f9fafb;
+        }
+
+        .dtc-empty-state {
+            margin: 40px auto;
+            max-width: 320px;
+            text-align: center;
+            color: var(--dtc-muted);
+            display: grid;
+            gap: 12px;
+            justify-items: center;
+        }
+
+        .dtc-empty-state .material-symbols-outlined {
+            font-size: 42px;
+            color: var(--dtc-primary);
+        }
+
+        .dtc-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid var(--dtc-border);
+            background: #f3f4f6;
+            color: var(--dtc-primary);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .dtc-lens__chrome {
+                grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .dtc-lens__sidebar,
+            .dtc-lens__detail {
+                max-height: none;
+            }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+        }
+    </style>
+
+    <div class="dtc-lens">
+        <div class="dtc-lens__chrome">
+            <aside class="dtc-lens__sidebar">
+                <header class="dtc-lens__header">
+                    <span class="dtc-lens__badge" id="dtc-count-badge">{{ dtc_list|length }} results</span>
+                    <h1 class="dtc-lens__title">DTC Lookup</h1>
+                    <p class="dtc-lens__subtitle">Search diagnostic procedures by code or symptom.</p>
+                </header>
+
+                <label class="dtc-input" for="dtc-search">
+                    <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                    <input id="dtc-search" name="dtc-search" type="search" placeholder="Search by code, system, or keyword" autocomplete="off">
+                </label>
+
+                <div class="dtc-filter-chips" aria-hidden="true">
+                    <div class="dtc-chip">
+                        <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+                        System
+                    </div>
+                    <div class="dtc-chip">
+                        <span class="material-symbols-outlined" aria-hidden="true">stacked_bar_chart</span>
+                        Severity
+                    </div>
+                    <div class="dtc-chip">
+                        <span class="material-symbols-outlined" aria-hidden="true">task_alt</span>
+                        Status
+                    </div>
+                </div>
+
+                <div class="dtc-results" id="dtc-results">
+                    {% for dtc in dtc_list %}
+                    <button type="button"
+                            class="dtc-result"
+                            data-dtc-item
+                            data-code="{{ dtc.code }}"
+                            data-description="{{ dtc.description }}"
+                            data-system="{{ dtc.system }}"
+                            data-severity="{{ dtc.severity }}">
+                        <span class="dtc-result__icon severity-{{ dtc.severity|lower }}">
+                            <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+                        </span>
+                        <div>
+                            <p class="dtc-result__code">{{ dtc.code }}</p>
+                            <p class="dtc-result__description">{{ dtc.description }}</p>
+                            <p class="dtc-result__meta">{{ dtc.system }} &middot; {{ dtc.severity|title }} severity</p>
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+            </aside>
+
+            <section class="dtc-lens__detail">
+                <header class="dtc-detail__header">
+                    <div>
+                        <div class="dtc-detail__code-row">
+                            <h2 class="dtc-detail__code" id="dtc-detail-code">--</h2>
+                            <span class="dtc-detail__severity" id="dtc-detail-severity">--</span>
+                        </div>
+                        <p class="dtc-detail__description" id="dtc-detail-description">Select a DTC to view diagnostic procedures.</p>
+                        <p class="dtc-detail__system" id="dtc-detail-system"></p>
+                    </div>
+                    <div class="dtc-detail__actions">
+                        <button type="button" class="dtc-icon-btn" aria-label="Print">
+                            <i class="fa-solid fa-print" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="dtc-icon-btn" aria-label="Save">
+                            <i class="fa-solid fa-download" aria-hidden="true"></i>
+                        </button>
+                        <a class="dtc-icon-btn" id="dtc-detail-link" href="#" target="_blank" rel="noopener" aria-label="Open full view">
+                            <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </header>
+                <div class="dtc-detail__body" id="dtc-detail-body">
+                    <div class="dtc-empty-state" id="dtc-placeholder">
+                        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                        <p>Pick a diagnostic trouble code to load repair guidance.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const resultsContainer = document.getElementById('dtc-results');
+            const resultItems = Array.from(document.querySelectorAll('[data-dtc-item]'));
+            const searchInput = document.getElementById('dtc-search');
+            const countBadge = document.getElementById('dtc-count-badge');
+            const detailCode = document.getElementById('dtc-detail-code');
+            const detailSeverity = document.getElementById('dtc-detail-severity');
+            const detailDescription = document.getElementById('dtc-detail-description');
+            const detailSystem = document.getElementById('dtc-detail-system');
+            const detailBody = document.getElementById('dtc-detail-body');
+            const detailLink = document.getElementById('dtc-detail-link');
+            const placeholder = document.getElementById('dtc-placeholder');
+            const detailUrlTemplate = "{{ url_for('dtc_api', code='__CODE__') }}";
+
+            let activeButton = null;
+
+            function updateCount(count) {
+                countBadge.textContent = `${count} ${count === 1 ? 'result' : 'results'}`;
+            }
+
+            function getSeverityClass(severity) {
+                if (!severity) return '';
+                const normalized = severity.toLowerCase();
+                if (normalized === 'high') return 'is-high';
+                if (normalized === 'medium') return 'is-medium';
+                if (normalized === 'low') return 'is-low';
+                return '';
+            }
+
+            function buildDetailUrl(code) {
+                return detailUrlTemplate.replace('__CODE__', encodeURIComponent(code));
+            }
+
+            function setActiveResult(button) {
+                if (activeButton) {
+                    activeButton.classList.remove('is-active');
+                }
+                activeButton = button;
+                if (activeButton) {
+                    activeButton.classList.add('is-active');
+                }
+            }
+
+            function renderSections(sections) {
+                detailBody.innerHTML = '';
+
+                if (!sections || !sections.length) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'dtc-empty-state';
+                    emptyState.innerHTML = '<span class="material-symbols-outlined">sentiment_dissatisfied</span><p>No repair procedures were provided for this DTC.</p>';
+                    detailBody.appendChild(emptyState);
+                    return;
+                }
+
+                sections.forEach(section => {
+                    const wrapper = document.createElement('section');
+                    wrapper.className = 'dtc-section';
+
+                    const heading = document.createElement('h3');
+                    heading.className = 'dtc-section__title';
+                    heading.textContent = section.title;
+                    wrapper.appendChild(heading);
+
+                    if (section.type === 'html') {
+                        const container = document.createElement('div');
+                        container.className = 'dtc-section__html';
+                        container.innerHTML = section.content;
+                        wrapper.appendChild(container);
+                    } else if (section.type === 'image') {
+                        const image = document.createElement('img');
+                        image.src = section.content;
+                        image.alt = section.title;
+                        image.className = 'dtc-section__image';
+                        wrapper.appendChild(image);
+                    } else {
+                        const pre = document.createElement('pre');
+                        pre.className = 'dtc-section__text';
+                        pre.textContent = section.content;
+                        wrapper.appendChild(pre);
+                    }
+
+                    detailBody.appendChild(wrapper);
+                });
+            }
+
+            async function loadDetail(button) {
+                const code = button.dataset.code;
+                const severity = button.dataset.severity || '';
+                const description = button.dataset.description || '';
+                const system = button.dataset.system || '';
+
+                setActiveResult(button);
+                placeholder?.remove();
+
+                detailCode.textContent = code;
+                detailDescription.textContent = description;
+                detailSystem.textContent = system ? `System \u00B7 ${system}` : '';
+                detailSeverity.textContent = severity || '--';
+                detailSeverity.className = `dtc-detail__severity ${getSeverityClass(severity)}`;
+                detailLink.href = "{{ url_for('dtc_detail', code='__CODE__') }}".replace('__CODE__', encodeURIComponent(code));
+
+                const loading = document.createElement('div');
+                loading.className = 'dtc-loading';
+                loading.innerHTML = '<span class="material-symbols-outlined">autorenew</span>Loading procedures...';
+                detailBody.innerHTML = '';
+                detailBody.appendChild(loading);
+
+                try {
+                    const response = await fetch(buildDetailUrl(code));
+                    if (!response.ok) {
+                        throw new Error(`Request failed: ${response.status}`);
+                    }
+
+                    const payload = await response.json();
+                    renderSections(payload.sections || []);
+                } catch (error) {
+                    console.error('Unable to load DTC detail', error);
+                    const errorState = document.createElement('div');
+                    errorState.className = 'dtc-empty-state';
+                    errorState.innerHTML = '<span class="material-symbols-outlined">report</span><p>Unable to load diagnostic procedures. Please try again.</p>';
+                    detailBody.innerHTML = '';
+                    detailBody.appendChild(errorState);
+                }
+            }
+
+            function handleSearch(event) {
+                const term = event.target.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                resultItems.forEach(item => {
+                    const code = item.dataset.code.toLowerCase();
+                    const desc = item.dataset.description.toLowerCase();
+                    const system = item.dataset.system.toLowerCase();
+
+                    const matches = !term || code.includes(term) || desc.includes(term) || system.includes(term);
+                    item.style.display = matches ? '' : 'none';
+                    if (matches) {
+                        visibleCount += 1;
+                    }
+                });
+
+                updateCount(visibleCount);
+
+                if (visibleCount === 0) {
+                    resultsContainer.setAttribute('data-empty', 'true');
+                } else {
+                    resultsContainer.removeAttribute('data-empty');
+                }
+            }
+
+            resultsContainer?.addEventListener('click', event => {
+                const button = event.target.closest('[data-dtc-item]');
+                if (!button || button.style.display === 'none') {
+                    return;
+                }
+                loadDetail(button);
+            });
+
+            searchInput?.addEventListener('input', handleSearch);
+
+            updateCount(resultItems.length);
+            if (resultItems.length) {
+                loadDetail(resultItems[0]);
+            }
+        })();
+    </script>
+{% endblock %}

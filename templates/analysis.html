@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Analysis & Statistics - IAWFPIDM
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h2>Diagnostic Analysis & Statistics</h2>
+            <p>Comprehensive data analysis and insights</p>
+        </div>
+    </div>
+
+    <!-- CSV Upload Section -->
+    <div class="upload-section">
+        <div class="card upload-card">
+            <h3><i class="fas fa-upload"></i> Import Diagnostic Data</h3>
+            <p class="upload-description">Upload your own CSV file(s) from diagnostic scanners or OBD-II tools</p>
+            
+            <div class="upload-area" id="upload-area">
+                <form id="csv-upload-form" enctype="multipart/form-data">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="csv-file-input" name="csv_file" accept=".csv" multiple style="display: none;">
+                        <label for="csv-file-input" class="file-input-label">
+                            <i class="fas fa-folder-open"></i> Browse...
+                        </label>
+                        <span id="file-name" class="file-name">No file selected.</span>
+                        <button type="submit" class="btn btn--primary upload-btn" id="upload-btn">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Drag and Drop Overlay -->
+                <div class="drag-overlay" id="drag-overlay">
+                    <i class="fas fa-file-csv"></i>
+                    <p>Drop CSV files here</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_dtcs }}</h3>
+                <p>Total DTCs</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.severity_counts.High }}</h3>
+                <p>High Severity</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-warning"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.severity_counts.Medium }}</h3>
+                <p>Medium Severity</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.severity_counts.Low }}</h3>
+                <p>Low Severity</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="analysis-grid">
+        <!-- DTC Distribution by System -->
+        <div class="card chart-card">
+            <h3>DTC Distribution by System</h3>
+            <canvas id="systemChart"></canvas>
+        </div>
+
+        <!-- Severity Distribution -->
+        <div class="card chart-card">
+            <h3>Severity Distribution</h3>
+            <canvas id="severityChart"></canvas>
+        </div>
+
+        <!-- System Breakdown Table -->
+        <div class="card">
+            <h3>System Breakdown</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>System</th>
+                            <th>DTC Count</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for system, count in stats.system_counts.items() %}
+                        {% if count > 0 %}
+                        <tr>
+                            <td><strong>{{ system }}</strong></td>
+                            <td>{{ count }}</td>
+                            {% set pct = (count / stats.total_dtcs * 100) if stats.total_dtcs else 0 %}
+                            <td>{{ "%.1f"|format(pct) }}%</td>
+                            <td>
+                                {% if pct > 20 %}
+                                <span class="badge badge-high">Critical</span>
+                                {% elif pct > 10 %}
+                                <span class="badge badge-medium">Moderate</span>
+                                {% else %}
+                                <span class="badge badge-low">Normal</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Severity Analysis -->
+        <div class="card">
+            <h3>Severity Analysis</h3>
+            <div class="severity-breakdown">
+                <div class="severity-item severity-high">
+                    <div class="severity-bar">
+                        <div class="severity-fill" data-fill="{{ (stats.severity_counts.High / stats.total_dtcs * 100)|round(1) if stats.total_dtcs else 0 }}"></div>
+                    </div>
+                    <div class="severity-info">
+                        <span class="severity-label">High Severity</span>
+                        <span class="severity-value">{{ stats.severity_counts.High }} ({{ "%.1f"|format((stats.severity_counts.High / stats.total_dtcs * 100) if stats.total_dtcs else 0) }}%)</span>
+                    </div>
+                </div>
+                
+                <div class="severity-item severity-medium">
+                    <div class="severity-bar">
+                        <div class="severity-fill" data-fill="{{ (stats.severity_counts.Medium / stats.total_dtcs * 100)|round(1) if stats.total_dtcs else 0 }}"></div>
+                    </div>
+                    <div class="severity-info">
+                        <span class="severity-label">Medium Severity</span>
+                        <span class="severity-value">{{ stats.severity_counts.Medium }} ({{ "%.1f"|format((stats.severity_counts.Medium / stats.total_dtcs * 100) if stats.total_dtcs else 0) }}%)</span>
+                    </div>
+                </div>
+                
+                <div class="severity-item severity-low">
+                    <div class="severity-bar">
+                        <div class="severity-fill" data-fill="{{ (stats.severity_counts.Low / stats.total_dtcs * 100)|round(1) if stats.total_dtcs else 0 }}"></div>
+                    </div>
+                    <div class="severity-info">
+                        <span class="severity-label">Low Severity</span>
+                        <span class="severity-value">{{ stats.severity_counts.Low }} ({{ "%.1f"|format((stats.severity_counts.Low / stats.total_dtcs * 100) if stats.total_dtcs else 0) }}%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card recommendations-card">
+            <h3>AI-Powered Recommendations</h3>
+            <div class="recommendations-list">
+                {% if (stats.severity_counts.High / stats.total_dtcs * 100) > 5 %}
+                <div class="recommendation-item high-priority">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>High Priority:</strong> 
+                        {{ stats.severity_counts.High }} high-severity DTCs detected. 
+                        Immediate attention recommended for critical systems.
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.system_counts['Fuel System'] > 100 %}
+                <div class="recommendation-item medium-priority">
+                    <i class="fas fa-gas-pump"></i>
+                    <div>
+                        <strong>Fuel System:</strong> 
+                        High concentration of fuel system DTCs ({{ stats.system_counts['Fuel System'] }}). 
+                        Consider fuel system inspection.
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.system_counts['Emissions'] > 50 %}
+                <div class="recommendation-item medium-priority">
+                    <i class="fas fa-smog"></i>
+                    <div>
+                        <strong>Emissions:</strong> 
+                        Multiple emissions-related codes detected. 
+                        Check catalyst and oxygen sensors.
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="recommendation-item info">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <strong>Tip:</strong> 
+                        Regular diagnostic scans can help prevent major failures. 
+                        Schedule maintenance based on DTC patterns.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Timeline -->
+        <div class="card">
+            <h3>Diagnostic Coverage</h3>
+            <div class="coverage-info">
+                <p>This diagnostic manual covers <strong>{{ stats.total_dtcs }}</strong> unique diagnostic trouble codes across multiple vehicle systems.</p>
+                <div class="coverage-stats">
+                    <div class="coverage-item">
+                        <span class="coverage-label">Powertrain Codes (P):</span>
+                        <span class="coverage-value">{{ stats.system_counts['Fuel System'] + stats.system_counts['Air Intake'] + stats.system_counts['Ignition'] + stats.system_counts['Emissions'] }}</span>
+                    </div>
+                    <div class="coverage-item">
+                        <span class="coverage-label">Chassis Codes (C):</span>
+                        <span class="coverage-value">{{ stats.system_counts['Chassis/ABS'] }}</span>
+                    </div>
+                    <div class="coverage-item">
+                        <span class="coverage-label">Body Codes (B):</span>
+                        <span class="coverage-value">{{ stats.system_counts['Body Control'] }}</span>
+                    </div>
+                    <div class="coverage-item">
+                        <span class="coverage-label">Network Codes (U):</span>
+                        <span class="coverage-value">{{ stats.system_counts['Network'] }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script id="analysis-meta" type="application/json">
+        {{ {'total_dtcs': stats.total_dtcs, 'system_counts': stats.system_counts, 'severity_counts': stats.severity_counts}|tojson|safe }}
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const analysisMetaElem = document.getElementById('analysis-meta');
+        let analysisMeta = null;
+        if (analysisMetaElem) {
+            try {
+                analysisMeta = JSON.parse(analysisMetaElem.textContent || '{}');
+            } catch (error) {
+                console.warn('Failed to parse analysis metadata', error);
+            }
+        }
+
+        const systemCountsData = analysisMeta && analysisMeta.system_counts ? analysisMeta.system_counts : {};
+        const severityCountsData = analysisMeta && analysisMeta.severity_counts ? analysisMeta.severity_counts : {};
+        const totalDtcs = analysisMeta && typeof analysisMeta.total_dtcs === 'number' ? analysisMeta.total_dtcs : 0;
+
+        // Build data for charts
+        const systemLabels = Object.keys(systemCountsData).filter(label => systemCountsData[label] > 0);
+        const systemValues = systemLabels.map(label => systemCountsData[label]);
+        const systemPalette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#6b7280'];
+
+        const severityOrder = ['High', 'Medium', 'Low'];
+        const severityPalette = { High: '#ef4444', Medium: '#f59e0b', Low: '#10b981' };
+        const severityLabels = severityOrder.filter(label => Object.prototype.hasOwnProperty.call(severityCountsData, label));
+        const severityValues = severityLabels.map(label => severityCountsData[label]);
+        const severityColors = severityLabels.map(label => severityPalette[label] || '#94a3b8');
+
+        document.querySelectorAll('.severity-fill[data-fill]').forEach(bar => {
+            const value = parseFloat(bar.dataset.fill || '0');
+            if (!Number.isNaN(value)) {
+                const clamped = Math.max(0, Math.min(value, 100));
+                bar.style.width = `${clamped}%`;
+            }
+        });
+
+        // System Distribution Chart
+        const systemCanvas = document.getElementById('systemChart');
+        if (systemCanvas) {
+            const systemCtx = systemCanvas.getContext('2d');
+            new Chart(systemCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: systemLabels,
+                    datasets: [{
+                        data: systemValues,
+                        backgroundColor: systemLabels.map((_, index) => systemPalette[index % systemPalette.length])
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Severity Distribution Chart
+        const severityCanvas = document.getElementById('severityChart');
+        if (severityCanvas) {
+            const severityCtx = severityCanvas.getContext('2d');
+            new Chart(severityCtx, {
+                type: 'bar',
+                data: {
+                    labels: severityLabels,
+                    datasets: [{
+                        label: 'Number of DTCs',
+                        data: severityValues,
+                        backgroundColor: severityColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh Analysis
+        const refreshBtn = document.getElementById('refresh-analysis-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                location.reload();
+            });
+        }
+
+        // Export Analysis
+        const exportBtn = document.getElementById('export-analysis-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                const reportData = {
+                    timestamp: new Date().toISOString(),
+                    total_dtcs: totalDtcs,
+                    severity: severityCountsData,
+                    systems: systemCountsData
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "dtc_analysis_report.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                
+                alert('Analysis report exported successfully!');
+            });
+        }
+
+        // File Upload Functionality
+        const uploadArea = document.getElementById('upload-area');
+        const dragOverlay = document.getElementById('drag-overlay');
+        const fileInput = document.getElementById('csv-file-input');
+        const fileName = document.getElementById('file-name');
+        const uploadForm = document.getElementById('csv-upload-form');
+
+        // File input change
+        if (fileInput && fileName) {
+            fileInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    if (this.files.length === 1) {
+                        fileName.textContent = this.files[0].name;
+                    } else {
+                        fileName.textContent = `${this.files.length} files selected`;
+                    }
+                } else {
+                    fileName.textContent = 'No file selected.';
+                }
+            });
+        }
+
+        // Drag and Drop
+        if (uploadArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        if (uploadArea && dragOverlay) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, function() {
+                    uploadArea.classList.add('drag-over');
+                    dragOverlay.classList.add('active');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, function() {
+                    uploadArea.classList.remove('drag-over');
+                    dragOverlay.classList.remove('active');
+                }, false);
+            });
+        }
+
+        if (uploadArea && fileInput && fileName) {
+            uploadArea.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                if (files.length > 0) {
+                    if (files.length === 1) {
+                        fileName.textContent = files[0].name;
+                    } else {
+                        fileName.textContent = `${files.length} files selected`;
+                    }
+                }
+            });
+        }
+
+        // Form submission
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (fileInput.files.length === 0) {
+                    alert('Please select a CSV file to upload.');
+                    return;
+                }
+
+                const formData = new FormData();
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('csv_files', fileInput.files[i]);
+                }
+
+                // Show loading state
+                const uploadBtn = document.getElementById('upload-btn');
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                uploadBtn.disabled = true;
+
+                // Upload to server
+                fetch('/upload-diagnostic-data', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(async response => {
+                    const payloadText = await response.text();
+                    let payload = {};
+                    try {
+                        payload = payloadText ? JSON.parse(payloadText) : {};
+                    } catch (error) {
+                        console.warn('Failed to parse upload response as JSON', error, payloadText);
+                        throw new Error('Unexpected server response. Please try again.');
+                    }
+
+                    if (!response.ok) {
+                        const message = payload.error || `Upload failed with status ${response.status}`;
+                        throw new Error(message);
+                    }
+
+                    return payload;
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Successfully uploaded ${data.files.length} file(s)!\n\nFiles: ${data.files.join(', ')}\n\nThe diagnostic data has been imported and is ready for analysis.`);
+
+                        const dashboardUrl = data.dashboard_url || (data.files.length > 0 ? `/trip-dashboard/${data.files[0]}` : null);
+                        if (data.trip_data && dashboardUrl) {
+                            const proceed = confirm('Would you like to view the OBD-II Trip Analysis Dashboard?');
+                            if (proceed) {
+                                window.location.href = dashboardUrl;
+                            }
+                        }
+
+                        fileInput.value = '';
+                        fileName.textContent = 'No file selected.';
+                    } else {
+                        alert('Upload failed: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    alert('Upload failed: ' + error.message);
+                })
+                .finally(() => {
+                    uploadBtn.innerHTML = originalText;
+                    uploadBtn.disabled = false;
+                });
+            });
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IAWFPIDM</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1193d4",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200 antialiased">
+<div class="relative flex min-h-screen w-full flex-col md:flex-row">
+    <div class="relative hidden w-full flex-col items-center justify-center bg-[#1C2A3A] p-10 text-white md:flex md:w-1/2">
+        <div class="absolute inset-0 z-0 opacity-10">
+            <img
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm-7mrd0rUfEAYZYZziWyt1BMdEaQf52TR1Fmsj_bK7mLsGPc7MbiLzn4wKJJ2834fylX_bK67iNlZGUWe8kmpKFdyOVOg-rOq0tkciKS_BpQ0tb_rOYXSYutvZ1_KGf8aBpsaUOwZePu84ki3ikw4NYPsS48Kc1cw0ybZDhhCAnyYRxXj5ZpQTYXnoWMecbTDTRlKwMbSeXERNx_3bIryOORXZI5nUNaTtD8dRuvmIYkqs9l8WLrt-VEZFjBctzBpNIKPLf8NTw"
+                alt="Abstract image of car engine diagnostics"
+                class="h-full w-full object-cover"
+            >
+        </div>
+        <div class="relative z-10 flex flex-col items-start gap-6 max-w-md">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-4xl">directions_car</span>
+                <h1 class="text-3xl font-bold">IAWFPIDM</h1>
+            </div>
+            <p class="text-lg text-gray-300">Advanced electrical fault detection and interactive diagnostics for modern vehicles.</p>
+
+        </div>
+        <div class="absolute bottom-8 left-8 text-sm text-gray-400">
+            <p>© 2024 Intelligent Automotive Diagnostics</p>
+        </div>
+    </div>
+
+    <main class="flex w-full flex-col items-center justify-center p-6 md:w-1/2">
+        <div class="w-full max-w-sm">
+            <div class="flex flex-col items-center text-center md:hidden mb-8">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-4xl">directions_car</span>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">IAWFPIDM</h1>
+                </div>
+            </div>
+
+            <h1 class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold pb-2 text-center md:text-left">
+                Welcome Back
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 text-center md:text-left">Sign in to access your diagnostics dashboard.</p>
+
+            {% if error %}
+            <div class="mb-6 rounded-lg border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-700 dark:bg-red-900/30 dark:text-red-200">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}" class="space-y-6">
+                <label class="flex flex-col">
+                    <span class="text-gray-900 dark:text-white text-base font-medium leading-normal pb-2">Username</span>
+                    <input
+                        type="text"
+                        name="username"
+                        value="{{ request.form.get('username', '') }}"
+                        autocomplete="username"
+                        required
+                        placeholder="Enter your username"
+                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 text-base text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                    >
+                </label>
+
+                <label class="flex flex-col">
+                    <span class="text-gray-900 dark:text-white text-base font-medium leading-normal pb-2">Password</span>
+                    <div class="flex w-full items-stretch">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg border border-gray-300 bg-white px-4 pr-2 text-base text-gray-900 placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                        >
+                        <button
+                            type="button"
+                            id="toggle-password"
+                            aria-label="Toggle password visibility"
+                            class="flex items-center justify-center rounded-r-lg border border-l-0 border-gray-300 bg-white px-4 text-gray-500 transition-colors hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-primary"
+                        >
+                            <span class="material-symbols-outlined" id="password-visibility-icon">visibility</span>
+                        </button>
+                    </div>
+                </label>
+
+                <label class="flex flex-col">
+                    <span class="text-gray-900 dark:text-white text-base font-medium leading-normal pb-2">Select Your Role</span>
+                    <select
+                        name="role"
+                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 bg-white px-4 text-base text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    >
+                        <option value="technician" {% if request.form.get('role', 'technician') == 'technician' %}selected{% endif %}>Technician</option>
+                        <option value="admin" {% if request.form.get('role') == 'admin' %}selected{% endif %}>Administrator</option>
+                        <option value="viewer" {% if request.form.get('role') == 'viewer' %}selected{% endif %}>Viewer</option>
+                    </select>
+                </label>
+
+                <button
+                    type="submit"
+                    class="flex w-full min-w-[84px] cursor-pointer items-center justify-center rounded-lg bg-primary px-5 py-3 text-base font-bold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/70 focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark"
+                >
+                    Log In
+                </button>
+            </form>
+
+            <div class="pt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+                <p>Need help? Contact your system administrator.</p>
+            </div>
+
+ 
+
+            <div class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400 md:hidden">
+                <p>© 2024 Intelligent Automotive Diagnostics</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const togglePasswordButton = document.getElementById('toggle-password');
+    const passwordField = document.getElementById('password');
+    const visibilityIcon = document.getElementById('password-visibility-icon');
+
+    if (togglePasswordButton && passwordField && visibilityIcon) {
+        togglePasswordButton.addEventListener('click', () => {
+            const isPassword = passwordField.type === 'password';
+            passwordField.type = isPassword ? 'text' : 'password';
+            visibilityIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+        });
+    }
+</script>
+</body>
+</html>

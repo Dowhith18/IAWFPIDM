@@ -1,0 +1,212 @@
+/* --- From dmc.css --- */
+html {
+	height: 100%;
+	width: 100%;
+	margin:0px;
+	padding:0px;
+	border:0px;
+	font-size: 12pt;
+}
+
+body {
+	background-color: #ffffff;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 100%;
+}
+
+img {
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
+	margin-right: 4px;
+}
+
+a:hover {
+	text-decoration: underline;
+	background: #dddddd;
+}
+
+a:focus {
+	background: #668899;
+	color:HighlightText;
+	width:100%;		
+}
+
+a:active {
+	background: #668899;
+	color:HighlightText;
+	width:100%;		
+}
+
+table.tabs {
+	border: 0;
+	vspace: 0;
+	margin: 0;
+	cellpadding: 0;
+	cellspacing: 0;
+	width: 100%;
+}
+
+iframe.show {
+	display: block; 
+	visibility: visible;
+}
+
+iframe.hide {
+	display: none;
+	visibility: hidden;
+}
+
+div.toc {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+body.toc {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+#tree {
+	color: #627081;
+	font-size: .8em;
+	height: 100%;
+}
+
+#tree ul {
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+
+#tree li {
+	font-weight: normal;
+	margin-top: 2px;
+	margin-left: 14px;
+	white-space: nowrap;
+}
+
+#tree img {
+	vertical-align: middle;
+}
+
+#tree a {
+	color: #627081;
+	vertical-align: middle;
+	text-decoration: none;
+}
+
+#tree li.item {
+	font-weight: normal;
+}
+
+#tree li.item-hidden {
+	display: none;
+}
+
+#tree ul.tree {
+	margin-left: 5px;
+}
+
+#tree li.open ul {
+	display: block;
+}
+
+#tree li.closed ul {
+	display: none;
+}
+
+#tree li.folder {
+	font-weight: bold;
+}
+
+#tree li.open-hidden ul, li.closed-hidden ul, li.folder-hidden ul {
+	display: none;
+}
+#tree li.open-disabled, li.closed-disabled, li.folder-disabled {
+	color: #909090;
+}
+
+
+/* --- From styler.css --- */
+body {
+  font-family: serif;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1.1;
+  margin-left: 5px;
+  width: 95%;
+}
+
+.x-title-1-0 {
+  display: block;
+  font-family: sans-serif;
+  font-size: 14pt;
+  font-weight: bold;
+  font-style: normal;
+  line-height: 1.1;
+  text-align: left;
+  margin-top: 15pt;
+  margin-bottom: 5pt;
+}
+
+.x-title-2-0 {
+  display: block;
+  font-family: sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: normal;
+  line-height: 1.1;
+  text-align: left;
+  margin-top: 10pt;
+  margin-bottom: 5pt;
+}
+
+.x-procbody-1-0 {
+  display: block;
+  margin-left: 20pt;
+}
+
+table {
+  border-spacing: 2px;
+  border-collapse: separate;
+  border-color: #000000;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  text-indent: 0pt;
+}
+
+table:not([frame])[border]:not([border="0"]) {
+  border-style: solid;
+}
+
+th, td {
+  border-top-style: none;
+  border-left-style: none;
+}
+
+.entry-in-tbody {
+  border-color: #000000;
+  margin-left: 0pt;
+  margin-right: 0pt;
+  text-indent: 0pt;
+}
+
+/* --- New Styles for Search Highlighting --- */
+
+/* Style for list items that match the search */
+li.search-match a {
+    background-color: #007bff; /* A blue background */
+    color: #fff; /* White text */
+    font-weight: bold;
+}
+
+/* Style for list items that do NOT match the search */
+li.search-no-match {
+    opacity: 0.5; /* Makes them look faded or dimmed */
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/diagnostic_app.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>{% block title %}IAWFPIDM{% endblock %}</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="IAWFPIDM" class="sidebar-logo">
+                <h2>IAWFPIDM</h2>
+            </div>
+            <ul class="nav-menu">
+                <li>
+                    <a href="/vehicle" class="{% if request.endpoint == 'vehicle_selection' %}active{% endif %}">
+                        <i class="fa-solid fa-car-side nav-menu__icon" aria-hidden="true"></i>
+                        <span class="nav-menu__label">Vehicle</span>
+                    </a>
+                </li>
+                {% if session.get('vehicle_selected') %}
+                <li>
+                    <a href="/" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high nav-menu__icon" aria-hidden="true"></i>
+                        <span class="nav-menu__label">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analysis" class="{% if request.endpoint == 'analysis' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line nav-menu__icon" aria-hidden="true"></i>
+                        <span class="nav-menu__label">Analysis</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/dtc-lookup" class="{% if request.endpoint == 'dtc_lookup' %}active{% endif %}">
+                        <i class="fa-solid fa-screwdriver-wrench nav-menu__icon" aria-hidden="true"></i>
+                        <span class="nav-menu__label">Procedures</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="dtc-codes-section {% if request.endpoint == 'dtc_detail' %}is-visible{% endif %}" id="dtc-codes-section">
+                <h3 style="padding: 0 20px; font-size: 14px; color: #888; margin: 20px 0 10px;">DTC Codes</h3>
+                <ul>
+                    {% for code in dtc_codes %}
+                        <li><a href="/dtc/{{ code }}" class="{% if request.view_args and request.view_args.get('code') == code %}active{% endif %}">{{ code }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% if user %}
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <p class="user-name">{{ user }}</p>
+                    <p class="user-role">{{ role }}</p>
+                </div>
+                <a href="{{ url_for('logout') }}" class="btn btn--secondary btn--sm">Logout</a>
+            </div>
+            {% endif %}
+        </nav>
+
+        <div class="resizer" id="dragMe"></div>
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/diagnostic_app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,820 @@
+{% extends "base.html" %}
+
+{% block title %}Trip Analysis Dashboard - IAWFPIDM{% endblock %}
+
+{% block content %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    {% set info = trip_data.get('trip_info', {}) %}
+    {% set dataset_summaries = trip_data.get('datasets', []) %}
+
+    <section class="trip-analysis-shell">
+        <aside class="trip-analysis-shell__sidebar">
+            <div class="trip-sidebar__brand">
+                <div class="trip-sidebar__avatar" aria-hidden="true"></div>
+                <div>
+                    <p class="trip-sidebar__title">Trip Data</p>
+                    <p class="trip-sidebar__subtitle">Processed OBD-II Logs</p>
+                </div>
+            </div>
+            <div class="trip-sidebar__current">
+                {% if dataset_summaries %}
+                    {% for dataset in dataset_summaries %}
+                        {% set meta = dataset.trip_info or {} %}
+                        <div class="trip-chip {{ 'trip-chip--active' if loop.first else 'trip-chip--muted' }}">
+                            <span class="material-symbols-outlined">route</span>
+                            <div>
+                                <p class="trip-chip__label">{{ dataset.label }}</p>
+                                <p class="trip-chip__meta">{{ meta.duration_minutes|default(0, true) }} min · {{ meta.distance_km|default(0, true) }} km</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="trip-chip trip-chip--active">
+                        <span class="material-symbols-outlined">route</span>
+                        <div>
+                            <p class="trip-chip__label">Selected Trip</p>
+                            <p class="trip-chip__meta">{{ info.duration_minutes|default(0, true) }} min · {{ info.distance_km|default(0, true) }} km</p>
+                        </div>
+                    </div>
+                    <div class="trip-chip trip-chip--muted">
+                        <span class="material-symbols-outlined">route</span>
+                        <div>
+                            <p class="trip-chip__label">Import additional log</p>
+                            <p class="trip-chip__meta">Support for CSV OBD-II traces</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="trip-sidebar__cta">
+                <button type="button" class="trip-sidebar__upload" onclick="document.getElementById('uploadCsvInput')?.click();">
+                    <span class="material-symbols-outlined">file_upload</span>
+                    <span>Upload New Trip</span>
+                </button>
+                <input id="uploadCsvInput" type="file" accept=".csv" hidden>
+            </div>
+        </aside>
+
+        <div class="trip-analysis-shell__content">
+            <header class="trip-hero">
+                <div>
+                    <p class="trip-hero__eyebrow">IAWFPIDM · Trip Insights</p>
+                    <h1 class="trip-hero__headline">Trip Analysis Dashboard</h1>
+                    <p class="trip-hero__subtitle">
+                        Telemetry breakdown for your uploaded drive session{% if dataset_summaries|length > 1 %}s ({{ dataset_summaries|length }} combined){% endif %}
+                    </p>
+                </div>
+                <div class="trip-hero__actions">
+                    <button type="button" class="trip-icon-btn" onclick="window.history.back();" title="Back to analysis">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <button type="button" class="trip-icon-btn" onclick="window.print();" title="Print dashboard">
+                        <span class="material-symbols-outlined">print</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="trip-metric-grid">
+                <article class="trip-metric-card">
+                    <p class="trip-metric-card__label">Total Distance</p>
+                    <p class="trip-metric-card__value">{{ info.distance_km|default(0, true) }} <span>km</span></p>
+                    <p class="trip-metric-card__meta">{{ info.distance_miles|default(0, true) }} mi converted</p>
+                </article>
+                <article class="trip-metric-card">
+                    <p class="trip-metric-card__label">Trip Duration</p>
+                    <p class="trip-metric-card__value">{{ info.duration_minutes|default(0, true) }} <span>min</span></p>
+                    <p class="trip-metric-card__meta">Includes idling and traffic time</p>
+                </article>
+                <article class="trip-metric-card">
+                    <p class="trip-metric-card__label">Average Speed</p>
+                    <p class="trip-metric-card__value">{{ info.avg_speed_kmh|default(0, true) }} <span>km/h</span></p>
+                    <p class="trip-metric-card__meta">{{ info.avg_speed_mph|default(0, true) }} mph equivalent</p>
+                </article>
+                <article class="trip-metric-card">
+                    <p class="trip-metric-card__label">Fuel Efficiency</p>
+                    <p class="trip-metric-card__value">{{ info.avg_kmpl|default(0, true) }} <span>km/l</span></p>
+                    <p class="trip-metric-card__meta">{{ info.avg_mpg|default(0, true) }} mpg equivalent</p>
+                </article>
+                <article class="trip-metric-card trip-metric-card--accent">
+                    <div class="trip-cost">
+                        <div>
+                            <p class="trip-metric-card__label">Estimated Fuel Cost</p>
+                            <p class="trip-cost__value" id="tripCost">₹0.00</p>
+                        </div>
+                        <div class="trip-cost__control">
+                            <span>₹</span>
+                            <input id="fuelPrice" type="number" value="108" min="0" max="300" step="0.5" aria-label="Fuel price per litre">
+                            <span>/L</span>
+                        </div>
+                    </div>
+                    <p class="trip-metric-card__meta">Based on {{ info.fuel_consumed_liters|default(0, true) }} litres consumed</p>
+                    <span id="fuelConsumed" data-liters="{{ info.fuel_consumed_liters|default(0, true) }}" hidden></span>
+                </article>
+            </section>
+
+            {% if dataset_summaries %}
+            <section class="trip-dataset-list">
+                <h2 class="trip-dataset-list__title">Uploaded Sessions</h2>
+                <div class="trip-dataset-list__grid">
+                    {% for dataset in dataset_summaries %}
+                        {% set meta = dataset.trip_info or {} %}
+                        <article class="trip-dataset-list__item">
+                            <p class="trip-dataset-list__name">{{ dataset.label }}</p>
+                            <p class="trip-dataset-list__metrics">{{ meta.distance_km|default(0, true) }} km · {{ meta.duration_minutes|default(0, true) }} min</p>
+                            <p class="trip-dataset-list__meta">Avg speed {{ meta.avg_speed_kmh|default(0, true) }} km/h · Fuel {{ meta.fuel_consumed_liters|default(0, true) }} L</p>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <section class="trip-chart-grid">
+                <article class="trip-chart-card">
+                    <header class="trip-chart-card__header">
+                        <div>
+                            <p class="trip-chart-card__title">RPM Over Time</p>
+                            <p class="trip-chart-card__subtitle">Engine load vs. ideal operating range</p>
+                        </div>
+                        <div class="trip-chart-card__actions">
+                            <button type="button" class="trip-icon-btn" onclick="openFullscreen(this.closest('.trip-chart-card').querySelector('img'), 'Engine RPM - Trip Overview');" title="Expand chart">
+                                <span class="material-symbols-outlined">fullscreen</span>
+                            </button>
+                        </div>
+                    </header>
+                    <img src="{{ trip_data.get('rpm_img') }}" alt="Engine RPM over time" class="trip-chart-card__image" loading="lazy">
+                    <div class="trip-chart-card__body">
+                        <p>Staying in the 1k–3k RPM band keeps the engine inside its efficient torque curve. Extended redline operation amplifies heat, fuel use, and wear.</p>
+                        <ul>
+                            <li><span>›</span> Above 5k RPM indicates aggressive acceleration or downshifts.</li>
+                            <li><span>›</span> 1k–3k RPM is the ideal cruise envelope for most vehicles.</li>
+                            <li><span>›</span> Prolonged idling below 1k RPM wastes fuel without progress.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="trip-chart-card">
+                    <header class="trip-chart-card__header">
+                        <div>
+                            <p class="trip-chart-card__title">Speed Analysis</p>
+                            <p class="trip-chart-card__subtitle">Cruise behaviour across the drive session</p>
+                        </div>
+                        <div class="trip-chart-card__actions">
+                            <button type="button" class="trip-icon-btn" onclick="openFullscreen(this.closest('.trip-chart-card').querySelector('img'), 'Vehicle Speed - Trip Overview');" title="Expand chart">
+                                <span class="material-symbols-outlined">fullscreen</span>
+                            </button>
+                        </div>
+                    </header>
+                    <img src="{{ trip_data.get('ideal_speed_img') }}" alt="Vehicle speed over time" class="trip-chart-card__image" loading="lazy">
+                    <div class="trip-chart-card__body">
+                        <p>The highlighted zone emphasises efficient cruising speeds (roughly 50–100 km/h) where aerodynamic drag and engine load remain balanced.</p>
+                        <ul>
+                            <li><span>›</span> Above 100 km/h drag climbs quickly, impacting economy.</li>
+                            <li><span>›</span> Target 50–100 km/h for relaxed expressway driving.</li>
+                            <li><span>›</span> Sub-50 km/h suggests congestion or frequent stops.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="trip-chart-card">
+                    <header class="trip-chart-card__header">
+                        <div>
+                            <p class="trip-chart-card__title">Acceleration Trends</p>
+                            <p class="trip-chart-card__subtitle">Throttle inputs and braking cadence</p>
+                        </div>
+                        <div class="trip-chart-card__actions">
+                            <button type="button" class="trip-icon-btn" onclick="openFullscreen(this.closest('.trip-chart-card').querySelector('img'), 'Driving Dynamics - Acceleration');" title="Expand chart">
+                                <span class="material-symbols-outlined">fullscreen</span>
+                            </button>
+                        </div>
+                    </header>
+                    <img src="{{ trip_data.get('acc_img') }}" alt="Vehicle acceleration over time" class="trip-chart-card__image" loading="lazy">
+                    <div class="trip-chart-card__body">
+                        <p>Smoother pedal inputs keep torque delivery predictable and boost passenger comfort while lowering wear on brakes and tyres.</p>
+                        <ul>
+                            <li><span>›</span> High spikes call out hard acceleration or braking.</li>
+                            <li><span>›</span> Gentle slopes mean predictive driving and coasting.</li>
+                            <li><span>›</span> Monitor repeated oscillations for potential traffic.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="trip-chart-card">
+                    <header class="trip-chart-card__header">
+                        <div>
+                            <p class="trip-chart-card__title">Throttle vs RPM</p>
+                            <p class="trip-chart-card__subtitle">Heatmap of drivetrain load combinations</p>
+                        </div>
+                        <div class="trip-chart-card__actions">
+                            <button type="button" class="trip-icon-btn" onclick="openFullscreen(this.closest('.trip-chart-card').querySelector('img'), 'Driving Dynamics - Throttle Efficiency');" title="Expand chart">
+                                <span class="material-symbols-outlined">fullscreen</span>
+                            </button>
+                        </div>
+                    </header>
+                    <img src="{{ trip_data.get('rpm_throttle') }}" alt="Throttle position mapped against RPM" class="trip-chart-card__image" loading="lazy">
+                    <div class="trip-chart-card__body">
+                        <p>Bright clusters reveal where the drivetrain spends most of its time. Balanced mid-RPM clusters with moderate throttle indicate efficient cruising.</p>
+                        <ul>
+                            <li><span>›</span> Upper-right clusters suggest aggressive throttle use.</li>
+                            <li><span>›</span> Dense mid-band clusters denote steady-state driving.</li>
+                            <li><span>›</span> Sparse zones highlight rarely used operating points.</li>
+                        </ul>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </section>
+
+    <div id="fullscreenModal" class="trip-modal" role="dialog" aria-modal="true" aria-labelledby="fullscreenTitle" hidden>
+        <button type="button" class="trip-modal__close" onclick="closeFullscreen()" aria-label="Close expanded chart">&times;</button>
+        <div class="trip-modal__content" onclick="event.stopPropagation();">
+            <h2 id="fullscreenTitle"></h2>
+            <img id="fullscreenImg" src="" alt="Expanded trip chart">
+        </div>
+    </div>
+
+    <style>
+        .trip-analysis-shell {
+            display: flex;
+            gap: clamp(16px, 3vw, 28px);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            color: #f6f7f8;
+            background: linear-gradient(140deg, rgba(17, 147, 212, 0.26), rgba(16, 28, 34, 0.92));
+            border-radius: 28px;
+            padding: clamp(16px, 3vw, 32px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trip-analysis-shell::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(17, 147, 212, 0.35), transparent 60%);
+            pointer-events: none;
+        }
+
+        .trip-analysis-shell__sidebar {
+            position: relative;
+            z-index: 1;
+            width: clamp(220px, 22vw, 280px);
+            background: rgba(12, 19, 23, 0.82);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: clamp(18px, 2.4vw, 24px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: clamp(18px, 2.4vw, 28px);
+            box-shadow: 0 20px 45px -20px rgba(4, 12, 20, 0.75);
+        }
+
+        .trip-sidebar__brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .trip-sidebar__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(17, 147, 212, 0.62), rgba(0, 212, 255, 0.3));
+            box-shadow: inset 0 1px 6px rgba(255, 255, 255, 0.15);
+        }
+
+        .trip-sidebar__title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .trip-sidebar__subtitle {
+            margin: 4px 0 0;
+            font-size: 0.85rem;
+            color: rgba(157, 176, 185, 0.86);
+        }
+
+        .trip-sidebar__current {
+            display: grid;
+            gap: 12px;
+        }
+
+        .trip-chip {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border-radius: 18px;
+            border: 1px solid transparent;
+            background: rgba(17, 147, 212, 0.08);
+        }
+
+        .trip-chip--active {
+            border-color: rgba(0, 212, 255, 0.38);
+            background: rgba(0, 212, 255, 0.12);
+        }
+
+        .trip-chip--muted {
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(246, 247, 248, 0.7);
+        }
+
+        .trip-chip__label {
+            margin: 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .trip-chip__meta {
+            margin: 2px 0 0;
+            font-size: 0.78rem;
+            color: rgba(157, 176, 185, 0.85);
+        }
+
+        .trip-sidebar__cta {
+            display: flex;
+        }
+
+        .trip-sidebar__upload {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(17, 147, 212, 0.16);
+            color: #f6f7f8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .trip-sidebar__upload:hover,
+        .trip-sidebar__upload:focus-visible {
+            transform: translateY(-2px);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .trip-analysis-shell__content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            background: rgba(13, 21, 27, 0.85);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: clamp(20px, 3vw, 36px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(24px, 3vw, 36px);
+            box-shadow: 0 28px 64px -24px rgba(4, 12, 20, 0.65);
+        }
+
+        .trip-hero {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .trip-hero,
+        .trip-hero__eyebrow,
+        .trip-hero__headline,
+        .trip-hero__subtitle {
+            color: rgba(246, 247, 248, 0.95);
+        }
+
+        .trip-hero__eyebrow {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.28em;
+            color: rgba(157, 176, 185, 0.7);
+        }
+
+        .trip-hero__headline {
+            margin: 8px 0 6px;
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #f6f7f8;
+        }
+
+        .trip-hero__subtitle {
+            margin: 0;
+            font-size: 0.95rem;
+            color: rgba(157, 176, 185, 0.82);
+        }
+
+        .trip-hero__actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .trip-icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(246, 247, 248, 0.06);
+            color: rgba(246, 247, 248, 0.82);
+            display: grid;
+            place-items: center;
+            transition: border 0.2s ease, color 0.2s ease;
+        }
+
+        .trip-icon-btn:hover,
+        .trip-icon-btn:focus-visible {
+            border-color: rgba(17, 147, 212, 0.5);
+            color: #00d4ff;
+        }
+
+        .trip-metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: clamp(16px, 2.5vw, 28px);
+        }
+
+        .trip-metric-card {
+            background: rgba(12, 19, 23, 0.78);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: clamp(18px, 2vw, 24px);
+            display: grid;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trip-metric-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(0, 212, 255, 0.22), transparent 60%);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .trip-metric-card--accent {
+            background: rgba(20, 70, 90, 0.85);
+            border-color: rgba(0, 212, 255, 0.28);
+        }
+
+        .trip-metric-card__label {
+            margin: 0;
+            font-size: 0.82rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(157, 176, 185, 0.76);
+        }
+
+        .trip-metric-card__value {
+            margin: 0;
+            font-size: clamp(24px, 3vw, 30px);
+            font-weight: 800;
+            color: #f6f7f8;
+        }
+
+        .trip-metric-card__value span {
+            margin-left: 6px;
+            font-size: 0.6em;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: rgba(157, 176, 185, 0.72);
+        }
+
+        .trip-metric-card__meta {
+            margin: 0;
+            font-size: 0.85rem;
+            color: rgba(157, 176, 185, 0.86);
+        }
+
+        .trip-cost {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .trip-cost__value {
+            margin: 4px 0 0;
+            font-size: clamp(26px, 3vw, 32px);
+            font-weight: 800;
+            color: #0affff;
+        }
+
+        .trip-cost__control {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 212, 255, 0.32);
+            background: rgba(0, 212, 255, 0.08);
+            font-size: 0.85rem;
+        }
+
+        .trip-cost__control input {
+            width: 72px;
+            background: transparent;
+            border: none;
+            text-align: center;
+            color: #f6f7f8;
+            font-weight: 600;
+        }
+
+        .trip-cost__control input:focus {
+            outline: none;
+        }
+
+        .trip-dataset-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .trip-dataset-list__title {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(157, 176, 185, 0.76);
+        }
+
+        .trip-dataset-list__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .trip-dataset-list__item {
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(12, 19, 23, 0.68);
+            display: grid;
+            gap: 6px;
+        }
+
+        .trip-dataset-list__name {
+            margin: 0;
+            font-weight: 600;
+            color: #f6f7f8;
+        }
+
+        .trip-dataset-list__metrics,
+        .trip-dataset-list__meta {
+            margin: 0;
+            font-size: 0.82rem;
+            color: rgba(157, 176, 185, 0.78);
+        }
+
+        .trip-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(18px, 2.6vw, 28px);
+        }
+
+        .trip-chart-card {
+            background: rgba(12, 19, 23, 0.82);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: clamp(18px, 2vw, 24px);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+
+        .trip-chart-card__header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .trip-chart-card__title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f6f7f8;
+        }
+
+        .trip-chart-card__subtitle {
+            margin: 6px 0 0;
+            font-size: 0.85rem;
+            color: rgba(157, 176, 185, 0.8);
+        }
+
+        .trip-chart-card__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .trip-chart-card__image {
+            width: 100%;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            background: rgba(0, 212, 255, 0.04);
+        }
+
+        .trip-chart-card__body {
+            display: grid;
+            gap: 12px;
+            font-size: 0.92rem;
+            color: rgba(210, 220, 226, 0.95);
+        }
+
+        .trip-chart-card__body ul {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .trip-chart-card__body li {
+            list-style: none;
+            position: relative;
+        }
+
+        .trip-chart-card__body li span {
+            position: absolute;
+            left: -18px;
+            color: #00d4ff;
+        }
+
+        .trip-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(4, 12, 20, 0.82);
+            z-index: 9999;
+        }
+
+        .trip-modal[hidden] {
+            display: none;
+        }
+
+        .trip-modal__content {
+            max-width: min(960px, 90vw);
+            max-height: 85vh;
+            background: rgba(12, 19, 23, 0.92);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            padding: clamp(20px, 3vw, 32px);
+            box-shadow: 0 30px 60px -30px rgba(0, 212, 255, 0.4);
+            display: grid;
+            gap: 18px;
+        }
+
+        .trip-modal__content img {
+            width: 100%;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 212, 255, 0.12);
+        }
+
+        .trip-modal__close {
+            position: absolute;
+            top: clamp(20px, 3vw, 32px);
+            right: clamp(20px, 3vw, 32px);
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            background: rgba(0, 212, 255, 0.12);
+            border: 1px solid rgba(0, 212, 255, 0.28);
+            color: #f6f7f8;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 960px) {
+            .trip-analysis-shell {
+                flex-direction: column;
+            }
+
+            .trip-analysis-shell__sidebar,
+            .trip-analysis-shell__content {
+                width: 100%;
+            }
+
+            .trip-hero__actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .trip-analysis-shell {
+                background: linear-gradient(140deg, rgba(17, 147, 212, 0.26), rgba(246, 247, 248, 0.92));
+                color: #101c22;
+            }
+
+            .trip-analysis-shell__sidebar,
+            .trip-analysis-shell__content,
+            .trip-chart-card,
+            .trip-metric-card {
+                background: rgba(255, 255, 255, 0.92);
+                color: #101c22;
+            }
+
+            .trip-dataset-list__item {
+                background: rgba(255, 255, 255, 0.88);
+                color: #101c22;
+            }
+
+            .trip-hero__headline,
+            .trip-chart-card__title,
+            .trip-metric-card__value,
+            .trip-cost__value {
+                color: #101c22;
+            }
+
+            .trip-icon-btn {
+                background: rgba(17, 147, 212, 0.1);
+                color: #1193d4;
+            }
+
+            .trip-chart-card__body,
+            .trip-chart-card__subtitle,
+            .trip-metric-card__meta,
+            .trip-dataset-list__metrics,
+            .trip-dataset-list__meta {
+                color: rgba(59, 75, 84, 0.85);
+            }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+
+    <script>
+        const fuelPriceInput = document.getElementById('fuelPrice');
+        const fuelConsumedEl = document.getElementById('fuelConsumed');
+        const tripCostEl = document.getElementById('tripCost');
+        const modal = document.getElementById('fullscreenModal');
+        const modalImage = document.getElementById('fullscreenImg');
+        const modalTitle = document.getElementById('fullscreenTitle');
+
+        const inrFormatter = (() => {
+            try {
+                return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
+            } catch (error) {
+                return { format: value => `₹${Number(value).toFixed(2)}` };
+            }
+        })();
+
+        function updateTripCost() {
+            if (!fuelPriceInput || !fuelConsumedEl || !tripCostEl) {
+                return;
+            }
+            const pricePerLitre = parseFloat(fuelPriceInput.value || '0');
+            const litresUsed = parseFloat(fuelConsumedEl.dataset.liters || '0');
+            const totalCost = pricePerLitre * litresUsed;
+            tripCostEl.textContent = Number.isFinite(totalCost) ? inrFormatter.format(totalCost) : '₹0.00';
+        }
+
+        updateTripCost();
+        fuelPriceInput?.addEventListener('input', updateTripCost);
+
+        function openFullscreen(imageEl, title) {
+            if (!modal || !imageEl) {
+                return;
+            }
+            modalImage.src = imageEl.src;
+            modalTitle.textContent = title || '';
+            modal.removeAttribute('hidden');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFullscreen() {
+            if (!modal) {
+                return;
+            }
+            modalImage.src = '';
+            modalTitle.textContent = '';
+            modal.setAttribute('hidden', 'hidden');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        modal?.addEventListener('click', closeFullscreen);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+    </script>
+{% endblock %}

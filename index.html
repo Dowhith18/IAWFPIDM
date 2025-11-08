@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard - IAWFPIDM
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h2>Vehicle Dashboard</h2>
+            <p>Real-time vehicle diagnostics and Analysis</p>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- Vehicle Metrics -->
+        <div class="card metrics-card">
+            <h3>Engine Sensors & Connectors</h3>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <label>Odometer</label>
+                    <div class="value" id="odometer-value">85 km</div>
+                </div>
+                <div class="metric-item">
+                    <label>Battery Voltage</label>
+                    <div class="value" id="battery-voltage">13.8V</div>
+                </div>
+                <div class="metric-item">
+                    <label>Engine RPM</label>
+                    <div class="value" id="engine-rpm">890</div>
+                </div>
+                <div class="metric-item">
+                    <label>Vehicle Speed</label>
+                    <div class="value" id="vehicle-speed">0 km/h</div>
+                </div>
+                <div class="metric-item">
+                    <label>Engine State</label>
+                    <div class="value" id="engine-state">Running</div>
+                </div>
+                <div class="metric-item">
+                    <label>Electrical Health</label>
+                    <div class="value" id="electrical-health">77%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fault Predictions -->
+        <div class="card predictions-card">
+            <h3>Fault Predictions</h3>
+            <div class="predictions-list" id="predictions-list">
+                <div class="prediction-card severity-high">
+                    <h4>DTC P062700 - Open Circuit</h4>
+                    <p><strong>Component:</strong> Fuel Pump Relay Control Circuit</p>
+                    <p><strong>Probable Cause:</strong> Open in relay control circuit</p>
+                    <p><strong>Impact:</strong> Engine shuts off, Fuel pump inactive</p>
+                    <p><strong>Severity:</strong> <span class="severity-high">High</span></p>
+                    <p><strong>Recommended Action:</strong> Check relay and wiring harness</p>
+                </div>
+                <div class="prediction-card severity-high">
+                    <h4>DTC P026100 - Short to Ground</h4>
+                    <p><strong>Component:</strong> Fuel Injector 1 Control Circuit</p>
+                    <p><strong>Probable Cause:</strong> Control wire short to ground</p>
+                    <p><strong>Impact:</strong> Cylinder 1 disabled, Engine limited to 1500 RPM</p>
+                    <p><strong>Severity:</strong> <span class="severity-high">High</span></p>
+                    <p><strong>Recommended Action:</strong> Inspect injector wiring and connector</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions-grid">
+                <button class="action-btn" onclick="window.location.href='/analysis'">Analysis</button>
+                <button class="action-btn" onclick="window.location.href='/dtc-lookup'">Procedures</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

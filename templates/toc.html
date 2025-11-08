@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table of Contents</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bundle.css') }}">
+    <script src="{{ url_for('static', filename='js/bundle.js') }}"></script>
+    <style>
+        /* Add some basic styling for the search bar */
+        #searchBox {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin: 0 10px 15px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body id="toc" class="toc">
+    <div id="tree">
+        <h2>DTC Codes</h2>
+
+        <input type="text" id="searchBox" onkeyup="filterDTCs()" placeholder="Search for a code...">
+
+        <ul class="tree" id="dtcList">
+            <li class="open">
+                <img src="{{ url_for('static', filename='EMS_ECU/images/minus.gif') }}" onclick="toggleOpenClose(event)">
+                <img src="{{ url_for('static', filename='EMS_ECU/images/book.gif') }}">
+                <span>All Codes</span>
+                <ul>
+                    {% for code in dtc_codes %}
+                    <li class="item">
+                        <img src="{{ url_for('static', filename='EMS_ECU/images/html_doc.gif') }}">
+                        <a href="/dtc/{{ code }}" target="content">{{ code }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1000 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Vehicle Selection & Diagnostics - IAWFPIDM
+{% endblock %}
+
+{% block content %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <div class="vsd-theme">
+        <header class="vsd-topbar">
+            <div class="vsd-brand">
+                <span class="material-symbols-outlined vsd-brand__icon">electric_car</span>
+                <div>
+                    <p class="vsd-brand__title">IAWFPIDM Diagnostics</p>
+                    <p class="vsd-brand__subtitle">Smart electrical fault detection &amp; trip intelligence</p>
+                </div>
+            </div>
+
+        </header>
+
+        <main class="vsd-main">
+            <section class="vsd-card vsd-vehicle-intake" id="vehicle-input-section">
+                <div class="vsd-vehicle-intake__header">
+                    <div>
+                        <h1 class="vsd-heading">Enter Vehicle Information</h1>
+                        <p class="vsd-subheading">Input or scan the VIN to initialise the diagnostic session.</p>
+                    </div>
+                    <div class="vsd-pill vsd-pill--info" id="vsd-session-state">Awaiting VIN</div>
+                </div>
+
+                <div class="vsd-form-grid">
+                    <label class="vsd-field">
+                        <span class="vsd-field__label">VIN (Vehicle Identification Number)</span>
+                        <input
+                            type="text"
+                            id="vin-input"
+                            maxlength="17"
+                            autocomplete="off"
+                            spellcheck="false"
+                            class="vsd-input"
+                            placeholder="Enter the 17-character VIN"
+                        >
+                    </label>
+                    <div class="vsd-field vsd-field--actions">
+                        <button type="button" class="vsd-btn vsd-btn--ghost" id="ocr-scan-btn">
+                            <span class="material-symbols-outlined">qr_code_scanner</span>
+                            OCR Scan
+                        </button>
+                        <button type="button" class="vsd-btn vsd-btn--primary" id="detect-vehicle-btn">
+                            <span class="material-symbols-outlined">radar</span>
+                            Detect Vehicle
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vsd-toast" id="vsd-toast" role="status" aria-live="polite"></div>
+            </section>
+
+            <section class="vsd-dashboard" id="dashboard-section">
+                <div class="vsd-dashboard__left">
+                    <div class="vsd-start-action">
+                        <button type="button" class="vsd-btn vsd-btn--primary vsd-btn--xl" id="start-diagnostic-btn" disabled aria-disabled="true">
+                            <span class="material-symbols-outlined">play_arrow</span>
+                            Start Diagnostics
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vsd-dashboard__right">
+                    <section class="vsd-card vsd-live-metrics" hidden>
+                        <div class="vsd-card__header">
+                            <div>
+                                <p class="vsd-card__eyebrow">Live Telemetry</p>
+                                <h3 class="vsd-card__title" id="vsd-metrics-title">Live Metrics</h3>
+                            </div>
+                            <span class="material-symbols-outlined vsd-metric-feed-icon" aria-hidden="true">sensors</span>
+                        </div>
+                        <div class="vsd-metric-grid" id="vsd-metric-grid"></div>
+                    </section>
+
+                    <section class="vsd-card vsd-alerts" hidden>
+                        <div class="vsd-card__header">
+                            <div>
+                                <p class="vsd-card__eyebrow">Predictive Alerts</p>
+                                <h3 class="vsd-card__title">Key Findings</h3>
+                            </div>
+                            <div class="vsd-pill vsd-pill--warn" id="vsd-stream-pill">Stream idle</div>
+                        </div>
+                        <div class="vsd-alert-list" id="vsd-alert-list"></div>
+                    </section>
+
+                    <section class="vsd-card vsd-history" hidden>
+                        <div class="vsd-card__header">
+                            <div>
+                                <p class="vsd-card__eyebrow">Recent Activity</p>
+                                <h3 class="vsd-card__title">Diagnostic History</h3>
+                            </div>
+                        </div>
+                        <div class="vsd-history-list" id="vsd-history-list" aria-live="polite"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <style>
+        .vsd-theme {
+            --vsd-primary: var(--text-primary);
+            --vsd-primary-dark: var(--text-primary);
+            --vsd-primary-soft: var(--color-selected-bg);
+            --vsd-card-bg: var(--surface-elevated);
+            --vsd-card-emphasis: var(--surface-highlight);
+            --vsd-border: var(--border-color);
+            --vsd-border-strong: var(--divider-color);
+            --vsd-divider: var(--divider-color);
+            --vsd-text: var(--text-primary);
+            --vsd-text-muted: var(--text-secondary);
+            --vsd-text-soft: var(--text-muted);
+            --vsd-success: var(--success-color);
+            --vsd-success-soft: var(--success-bg);
+            --vsd-warn: var(--warning-color);
+            --vsd-warn-soft: var(--warning-bg);
+            --vsd-danger: var(--error-color);
+            --vsd-danger-soft: var(--error-bg);
+            --vsd-info: var(--info-color);
+            --vsd-info-soft: var(--info-bg);
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--background-muted);
+            padding: 32px clamp(16px, 4vw, 48px);
+            color: var(--vsd-text);
+        }
+
+        .vsd-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vsd-brand__icon {
+            font-size: 36px;
+            color: var(--vsd-text);
+            background: var(--color-pill-bg);
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .vsd-brand__title {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-brand__subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-topnav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vsd-topnav__link {
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: var(--vsd-text-soft);
+            background: transparent;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .vsd-topnav__link:hover,
+        .vsd-topnav__link:focus {
+            background: var(--vsd-primary-soft);
+            color: var(--vsd-primary);
+        }
+
+        .vsd-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .vsd-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-pill-bg);
+            border: 1px solid var(--vsd-border);
+        }
+
+        .vsd-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--vsd-border);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            text-decoration: none;
+            background: var(--vsd-card-bg);
+            color: var(--vsd-text);
+            box-shadow: none;
+        }
+
+        .vsd-btn--primary {
+            background: var(--vsd-primary);
+            color: var(--accent-contrast);
+            border-color: var(--vsd-primary);
+        }
+
+        .vsd-btn--primary:hover,
+        .vsd-btn--primary:focus {
+            background: var(--vsd-primary-dark);
+        }
+
+        .vsd-btn--ghost {
+            background: transparent;
+            color: var(--vsd-text);
+        }
+
+        .vsd-btn--ghost:hover,
+        .vsd-btn--ghost:focus {
+            background: var(--vsd-primary-soft);
+            color: var(--vsd-primary);
+            border-color: var(--vsd-primary);
+        }
+
+        .vsd-btn--xl {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 16px;
+        }
+
+        .vsd-main {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .vsd-card {
+            background: var(--vsd-card-bg);
+            border-radius: 16px;
+            padding: clamp(20px, 3vw, 28px);
+            border: 1px solid var(--vsd-border);
+            box-shadow: none;
+        }
+
+        .vsd-card--primary {
+            background: var(--vsd-card-emphasis);
+            border-color: var(--vsd-border);
+        }
+
+        .vsd-vehicle-intake {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .vsd-vehicle-intake__header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .vsd-heading {
+            font-weight: 800;
+            font-size: clamp(26px, 3vw, 36px);
+            margin: 0 0 6px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-subheading {
+            margin: 0;
+            color: var(--vsd-text-muted);
+            font-size: 15px;
+        }
+
+        .vsd-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .vsd-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vsd-field__label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-input {
+            background: var(--vsd-card-bg);
+            border: 1px solid var(--vsd-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            color: var(--vsd-text);
+            box-shadow: none;
+        }
+
+        .vsd-input::placeholder {
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-input:focus {
+            outline: none;
+            border-color: var(--vsd-primary);
+            box-shadow: 0 0 0 3px var(--vsd-primary-soft);
+        }
+
+        .vsd-field--actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .vsd-toast {
+            min-height: 46px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--vsd-card-emphasis);
+            border: 1px solid var(--vsd-border);
+            color: var(--vsd-text);
+        }
+
+        .vsd-toast.is-visible {
+            display: inline-flex;
+        }
+
+        .vsd-toast--success {
+            background: var(--vsd-success-soft);
+            border-color: var(--vsd-success);
+            color: var(--vsd-success);
+        }
+
+        .vsd-toast--warn {
+            background: var(--vsd-warn-soft);
+            border-color: var(--vsd-warn);
+            color: var(--vsd-warn);
+        }
+
+        .vsd-toast--error {
+            background: var(--vsd-danger-soft);
+            border-color: var(--vsd-danger);
+            color: var(--vsd-danger);
+        }
+
+        .vsd-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .vsd-dashboard__left {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            width: min(720px, 100%);
+        }
+
+        .vsd-start-action {
+            display: flex;
+            justify-content: flex-start;
+            padding: 24px;
+            background: var(--vsd-card-bg);
+            border: 1px solid var(--vsd-border);
+            border-radius: 16px;
+        }
+
+        .vsd-dashboard__right {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            width: min(420px, 100%);
+        }
+
+        .vsd-metric-feed-icon {
+            font-size: 26px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-card__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .vsd-card__eyebrow {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            margin-bottom: 4px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-card__title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--vsd-text);
+        }
+
+        .vsd-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 999px;
+            background: var(--color-pill-bg);
+            color: var(--color-pill-text);
+            border: 1px solid var(--vsd-border);
+        }
+
+        .vsd-pill--info {
+            background: var(--vsd-info-soft);
+            border-color: var(--vsd-info);
+            color: var(--vsd-info);
+        }
+
+        .vsd-pill--success {
+            background: var(--vsd-success-soft);
+            border-color: var(--vsd-success);
+            color: var(--vsd-success);
+        }
+
+        .vsd-pill--warn {
+            background: var(--vsd-warn-soft);
+            border-color: var(--vsd-warn);
+            color: var(--vsd-warn);
+        }
+
+        .vsd-pill--danger {
+            background: var(--vsd-danger-soft);
+            border-color: var(--vsd-danger);
+            color: var(--vsd-danger);
+        }
+
+        .vsd-alert-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .vsd-alert-item {
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--vsd-border);
+            display: grid;
+            gap: 6px;
+            background: var(--vsd-card-emphasis);
+        }
+
+        .vsd-alert-item--high {
+            border-color: var(--vsd-danger);
+            background: var(--vsd-danger-soft);
+        }
+
+        .vsd-alert-item--medium {
+            border-color: var(--vsd-warn);
+            background: var(--vsd-warn-soft);
+        }
+
+        .vsd-alert-item--low {
+            border-color: var(--vsd-success);
+            background: var(--vsd-success-soft);
+        }
+
+        .vsd-alert-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-alert-description {
+            margin: 0;
+            font-size: 13px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-history-list {
+            display: grid;
+            gap: 14px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .vsd-history-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--vsd-divider);
+        }
+
+        .vsd-history-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .vsd-history-marker {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+            background: var(--vsd-primary);
+        }
+
+        .vsd-history-title {
+            margin: 0;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-history-meta {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-empty-state {
+            margin: 8px 0;
+            font-size: 13px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .vsd-metric-card {
+            border-radius: 16px;
+            border: 1px solid var(--vsd-border);
+            background: var(--vsd-card-bg);
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+            transition: border-color 0.2s ease;
+            box-shadow: none;
+        }
+
+        .vsd-metric-card:hover {
+            border-color: var(--vsd-text-soft);
+        }
+
+        .vsd-metric-card__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .vsd-metric-label {
+            font-size: 14px;
+            color: var(--vsd-text-soft);
+            font-weight: 600;
+        }
+
+        .vsd-metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            color: var(--vsd-text);
+        }
+
+        .vsd-metric-unit {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-metric-caption {
+            margin: 0;
+            font-size: 12px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-metric-icon {
+            font-size: 22px;
+            color: var(--vsd-text-soft);
+        }
+
+        .vsd-metric-card--good {
+            background: var(--vsd-success-soft);
+            border-color: var(--vsd-success);
+        }
+
+        .vsd-metric-card--warn {
+            background: var(--vsd-warn-soft);
+            border-color: var(--vsd-warn);
+        }
+
+        .vsd-metric-card--bad {
+            background: var(--vsd-danger-soft);
+            border-color: var(--vsd-danger);
+        }
+
+        @media (max-width: 920px) {
+            .vsd-topnav {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .vsd-field--actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .vsd-theme {
+                padding: 24px 16px 48px;
+            }
+
+            .vsd-topbar {
+                padding: 16px;
+            }
+
+            .vsd-dashboard {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .vsd-dashboard__left {
+                width: 100%;
+            }
+
+            .vsd-dashboard__right {
+                width: 100%;
+            }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+        }
+    </style>
+
+    <script id="selected-vehicle-data" type="application/json">{{ selected_vehicle|tojson }}</script>
+
+    <script>
+    const selectedVehicleScript = document.getElementById('selected-vehicle-data');
+
+    const sampleVehicles = {
+            '1FTFW1E50PFA12345': {
+                model: '2023 Ford F-150 Lightning Lariat',
+                vin: '1FTFW1E50PFA12345',
+                connectionStatus: { label: 'Connected', severity: 'success' },
+                streamStatus: { label: 'Streaming live', severity: 'success' },
+                metrics: [
+                    { id: 'odometer', label: 'Odometer', value: '78,432', unit: 'mi', status: 'good', icon: 'trending_up', caption: 'Lifecycle within expected range' },
+                    { id: 'battery', label: 'Battery Voltage', value: '12.6', unit: 'V', status: 'good', icon: 'battery_full', caption: 'Stable electrical supply' },
+                    { id: 'rpm', label: 'Engine RPM', value: '850', unit: 'rpm', status: 'good', icon: 'sync', caption: 'Idle control stable' },
+                    { id: 'speed', label: 'Vehicle Speed', value: '0', unit: 'mph', status: 'good', icon: 'speed', caption: 'Stationary' },
+                    { id: 'engine', label: 'Engine State', value: 'On', unit: '', status: 'good', icon: 'power_settings_new', caption: 'Idle - ready state' },
+                    { id: 'electrical', label: 'Electrical Health', value: '43', unit: '%', status: 'bad', icon: 'bolt', caption: 'High resistance detected in relay circuit' }
+                ],
+                alerts: [
+                    { severity: 'high', title: 'High: Fuel Pump Relay - Open Circuit', description: 'Risk of no-start or stalling. Inspect relay and harness immediately.' },
+                    { severity: 'medium', title: 'Medium: Injector Circuit 3 - Short', description: 'Intermittent misfire likely. Check injector and wiring continuity.' },
+                    { severity: 'low', title: 'Low: Fuel Pump Relay - Short to Power', description: 'Monitor relay temperature. Schedule inspection next service window.' }
+                ],
+                history: [
+                    { severity: 'high', title: 'CAN Bus Communication Failure', timestamp: '2025-10-26 14:30', detail: 'Resolved - Replaced faulty gateway module' },
+                    { severity: 'medium', title: 'O2 Sensor Circuit Low Voltage', timestamp: '2025-10-25 09:15', detail: 'Pending - Awaiting sensor replacement' },
+                    { severity: 'high', title: 'ABS Wheel Speed Sensor - Intermittent', timestamp: '2025-10-24 11:05', detail: 'Resolved - Cleaned sensor and connector' },
+                    { severity: 'low', title: 'EVAP System Small Leak', timestamp: '2025-10-22 16:45', detail: 'Resolved - Replaced gas cap seal' },
+                    { severity: 'medium', title: 'Throttle Position Sensor Malfunction', timestamp: '2025-10-20 10:00', detail: 'Resolved - TPS recalibration performed' }
+                ]
+            },
+            '5YJ3E1EA7HF000337': {
+                model: '2017 Tesla Model 3 Performance',
+                vin: '5YJ3E1EA7HF000337',
+                connectionStatus: { label: 'Connected', severity: 'success' },
+                streamStatus: { label: 'Streaming live', severity: 'success' },
+                metrics: [
+                    { id: 'odometer', label: 'Odometer', value: '42,118', unit: 'mi', status: 'good', icon: 'trending_up', caption: 'Battery pack cycle 412' },
+                    { id: 'battery', label: 'Battery Voltage', value: '403', unit: 'V', status: 'warn', icon: 'battery_saver', caption: 'Pack voltage below nominal 50th percentile' },
+                    { id: 'rpm', label: 'Inverter Temp', value: '77', unit: '&deg;C', status: 'warn', icon: 'device_thermostat', caption: 'Cooling requested - moderate load' },
+                    { id: 'speed', label: 'Vehicle Speed', value: '37', unit: 'mph', status: 'good', icon: 'speed', caption: 'City cycle' },
+                    { id: 'engine', label: 'Drive State', value: 'Drive', unit: '', status: 'good', icon: 'directions_car', caption: 'Dual motor active' },
+                    { id: 'electrical', label: 'Electrical Health', value: '68', unit: '%', status: 'warn', icon: 'bolt', caption: 'Monitor HV contactor wear' }
+                ],
+                alerts: [
+                    { severity: 'medium', title: 'Medium: Inverter Cooling Efficiency Reduced', description: 'Auxiliary pump duty cycle elevated. Inspect coolant loop for restriction.' },
+                    { severity: 'low', title: 'Low: Cabin Filter Saturation', description: 'Filter efficiency at 62%. Schedule replacement next service.' }
+                ],
+                history: [
+                    { severity: 'medium', title: 'Battery Heater Relay Fault', timestamp: '2025-09-14 08:10', detail: 'Resolved - Firmware patch applied' },
+                    { severity: 'low', title: 'Tire Pressure Advisory', timestamp: '2025-09-10 18:45', detail: 'Resolved - Rebalanced tire set' }
+                ]
+            }
+        };
+
+        sampleVehicles.DEFAULT = {
+            model: 'Awaiting Vehicle Detection',
+            vin: '--',
+            connectionStatus: { label: 'Disconnected', severity: 'warn' },
+            streamStatus: { label: 'Stream idle', severity: 'warn' },
+            metrics: [],
+            alerts: [],
+            history: []
+        };
+
+        const vinInput = document.getElementById('vin-input');
+        const detectButton = document.getElementById('detect-vehicle-btn');
+        const ocrButton = document.getElementById('ocr-scan-btn');
+        const startButton = document.getElementById('start-diagnostic-btn');
+        const toast = document.getElementById('vsd-toast');
+        const sessionState = document.getElementById('vsd-session-state');
+        const streamPill = document.getElementById('vsd-stream-pill');
+        const metricsTitle = document.getElementById('vsd-metrics-title');
+        const metricGrid = document.getElementById('vsd-metric-grid');
+        const alertList = document.getElementById('vsd-alert-list');
+        const historyList = document.getElementById('vsd-history-list');
+        const metricSection = document.querySelector('.vsd-live-metrics');
+        const alertsSection = document.querySelector('.vsd-alerts');
+        const historySection = document.querySelector('.vsd-history');
+
+        let currentVehicle = null;
+
+        function setPillState(element, severity, fallbackText) {
+            if (!element) return;
+            const baseClass = 'vsd-pill';
+            element.className = baseClass;
+            if (severity === 'success') {
+                element.classList.add('vsd-pill--success');
+            } else if (severity === 'warn') {
+                element.classList.add('vsd-pill--warn');
+            } else if (severity === 'danger') {
+                element.classList.add('vsd-pill--danger');
+            } else if (severity === 'info') {
+                element.classList.add('vsd-pill--info');
+            }
+            if (fallbackText) {
+                element.textContent = fallbackText;
+            }
+        }
+
+        function renderMetrics(metrics) {
+            if (!metricGrid) return;
+            if (!metrics || !metrics.length) {
+                metricGrid.innerHTML = '';
+                if (metricSection) {
+                    metricSection.setAttribute('hidden', 'hidden');
+                }
+                return;
+            }
+
+            if (metricSection) {
+                metricSection.removeAttribute('hidden');
+            }
+
+            metricGrid.innerHTML = metrics.map(metric => {
+                const statusClass = metric.status ? `vsd-metric-card--${metric.status}` : '';
+                const unit = metric.unit ? `<span class="vsd-metric-unit">${metric.unit}</span>` : '';
+                const caption = metric.caption ? `<p class="vsd-metric-caption">${metric.caption}</p>` : '';
+                return `
+                    <div class="vsd-metric-card ${statusClass}">
+                        <div class="vsd-metric-card__top">
+                            <span class="vsd-metric-label">${metric.label}</span>
+                            <span class="material-symbols-outlined vsd-metric-icon">${metric.icon || 'sensors'}</span>
+                        </div>
+                        <div class="vsd-metric-value">${metric.value}${unit}</div>
+                        ${caption}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAlerts(alerts) {
+            if (!alertList) return;
+            if (!alerts || !alerts.length) {
+                alertList.innerHTML = '';
+                    if (alertsSection) {
+                        alertsSection.setAttribute('hidden', 'hidden');
+                    }
+                return;
+            }
+
+                if (alertsSection) {
+                    alertsSection.removeAttribute('hidden');
+                }
+
+            alertList.innerHTML = alerts.map(alert => {
+                const severityClass = alert.severity ? `vsd-alert-item--${alert.severity}` : '';
+                return `
+                    <article class="vsd-alert-item ${severityClass}">
+                        <h4 class="vsd-alert-title">${alert.title}</h4>
+                        <p class="vsd-alert-description">${alert.description}</p>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderHistory(history) {
+            if (!historyList) return;
+            if (!history || !history.length) {
+                historyList.innerHTML = '';
+                    if (historySection) {
+                        historySection.setAttribute('hidden', 'hidden');
+                    }
+                return;
+            }
+
+                if (historySection) {
+                    historySection.removeAttribute('hidden');
+                }
+
+            historyList.innerHTML = history.map(item => {
+                const markerColor = item.severity === 'high' ? 'var(--vsd-danger)' : item.severity === 'medium' ? 'var(--vsd-warn)' : 'var(--vsd-success)';
+                return `
+                    <article class="vsd-history-item">
+                        <span class="vsd-history-marker" style="background: ${markerColor};"></span>
+                        <div>
+                            <h4 class="vsd-history-title">${item.title}</h4>
+                            <p class="vsd-history-meta">${item.timestamp} - ${item.detail}</p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function showToast(message, tone = 'info') {
+            if (!toast) return;
+            toast.className = 'vsd-toast is-visible';
+            toast.textContent = message;
+            if (tone === 'success') {
+                toast.classList.add('vsd-toast--success');
+            } else if (tone === 'warn') {
+                toast.classList.add('vsd-toast--warn');
+            } else if (tone === 'error') {
+                toast.classList.add('vsd-toast--error');
+            }
+            window.clearTimeout(showToast.timeoutId);
+            showToast.timeoutId = window.setTimeout(() => {
+                toast.classList.remove('is-visible', 'vsd-toast--success', 'vsd-toast--warn', 'vsd-toast--error');
+            }, 4000);
+        }
+
+        function renderVehicle(vehicle) {
+            currentVehicle = vehicle;
+            const modelName = vehicle.model || 'Detected Vehicle';
+            if (metricsTitle) {
+                metricsTitle.textContent = `Live Metrics: ${modelName}`;
+            }
+
+            const connection = vehicle.connectionStatus || { label: 'Disconnected', severity: 'warn' };
+
+            const stream = vehicle.streamStatus || { label: 'Stream idle', severity: 'warn' };
+            setPillState(streamPill, stream.severity, stream.label);
+
+            if (sessionState) {
+                const sessionSeverity = connection.severity === 'success' ? 'success' : 'warn';
+                setPillState(sessionState, sessionSeverity, connection.severity === 'success' ? 'Vehicle Linked' : 'Awaiting VIN');
+            }
+
+            renderMetrics(vehicle.metrics);
+            renderAlerts(vehicle.alerts);
+            renderHistory(vehicle.history);
+
+            startButton.disabled = false;
+            startButton.setAttribute('aria-disabled', 'false');
+            showToast(`Vehicle profile loaded for ${modelName}`, 'success');
+        }
+
+        function buildVehicleFromSession(sessionVehicle) {
+            if (!sessionVehicle) {
+                return null;
+            }
+            const { vin, model } = sessionVehicle;
+            const reference = sampleVehicles[vin];
+            if (reference) {
+                return { ...reference, vin: vin || reference.vin, model: model || reference.model };
+            }
+            const clone = JSON.parse(JSON.stringify(sampleVehicles.DEFAULT));
+            clone.vin = vin || '--';
+            clone.model = model || 'Stored Vehicle';
+            clone.connectionStatus = { label: 'Ready', severity: 'success' };
+            clone.streamStatus = { label: 'Stream idle', severity: 'warn' };
+            return clone;
+        }
+
+        detectButton?.addEventListener('click', () => {
+            const vin = vinInput.value.trim().toUpperCase();
+            if (vin.length !== 17) {
+                showToast('VIN must be 17 characters long.', 'warn');
+                return;
+            }
+
+            const vehicleProfile = sampleVehicles[vin] ? { ...sampleVehicles[vin] } : {
+                ...JSON.parse(JSON.stringify(sampleVehicles.DEFAULT)),
+                vin,
+                model: `Detected Vehicle (${vin.slice(0, 8)}...)`,
+                connectionStatus: { label: 'Connected', severity: 'success' }
+            };
+
+            renderVehicle(vehicleProfile);
+        });
+
+        ocrButton?.addEventListener('click', () => {
+            showToast('OCR capture is coming soon. Enter VIN manually for now.', 'info');
+        });
+
+        startButton?.addEventListener('click', async () => {
+            if (!currentVehicle) {
+                showToast('Detect a vehicle before starting diagnostics.', 'warn');
+                return;
+            }
+
+            startButton.disabled = true;
+            const originalLabel = startButton.innerHTML;
+            startButton.innerHTML = '<span class="material-symbols-outlined">autorenew</span> Initialising...';
+
+            try {
+                const response = await fetch("{{ url_for('start_diagnostic') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vin: currentVehicle.vin,
+                        model: currentVehicle.model
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success && result.redirect) {
+                    window.location.href = result.redirect;
+                } else {
+                    throw new Error('Unexpected response from server');
+                }
+            } catch (error) {
+                console.error('Error starting diagnostics:', error);
+                showToast('Unable to start diagnostics. Try again or check connection.', 'error');
+                startButton.disabled = false;
+                startButton.innerHTML = originalLabel;
+            }
+        });
+
+        const sessionVehicle = buildVehicleFromSession(selectedVehicleScript ? JSON.parse(selectedVehicleScript.textContent || 'null') : null);
+
+        if (sessionVehicle) {
+            renderVehicle(sessionVehicle);
+            if (vinInput && sessionVehicle.vin && sessionVehicle.vin !== '--') {
+                vinInput.value = sessionVehicle.vin;
+            }
+        } else {
+            renderMetrics(sampleVehicles.DEFAULT.metrics);
+            renderAlerts(sampleVehicles.DEFAULT.alerts);
+            renderHistory(sampleVehicles.DEFAULT.history);
+            setPillState(streamPill, 'warn', 'Stream idle');
+        }
+
+        vinInput?.addEventListener('input', () => {
+            startButton.disabled = true;
+            startButton.setAttribute('aria-disabled', 'true');
+        });
+    </script>
+{% endblock %}
