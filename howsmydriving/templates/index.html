@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block heading%}How's My Driving?{% endblock heading %}
+
+<!-- page content -->
+{% block content %}
+<h2 class="m-0">
+    <a href="/faq" class="link-secondary link-underline link-underline-opacity-0">
+        An OBD-II Trip Analysis Dashboard
+    </a>
+</h2>
+
+<div class="col-12 col-sm-10 col-md-8 col-lg-6 m-auto mt-5 text-start">
+    <!-- Custom trip input form -->
+    <form id="inputForm" method="post" enctype="multipart/form-data">
+        <p class="mb-2 text-body-secondary">
+            Import you own CSV file(s) from
+            <a href="https://www.carscanner.info/" class="link-secondary" target="_blank">Car Scanner ELM OBD2</a>
+        </p>
+        <div class="input-group">
+            <input type="file" name="csv_file" accept=".csv" class="form-control" id="file" required />
+            <button type="submit" value="custom_input" class="btn btn-outline-secondary">
+                <i class="bi bi-upload"></i>
+                Upload
+            </button>
+        </div>
+    </form>
+
+    <!-- Demo trip cards -->
+    <div>
+        <p class="mb-2 mt-5 text-body-secondary">or try a demo trip...</p>
+        <div class="row gy-3">
+            <div class="col-12 col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="font-size: medium;">North Phoenix to Tempe</h5>
+                        <p class="card-text" style="font-size: small;">
+                            /* Lines 38-39 omitted */
+                        </p>
+                        <a href="/dashboard/phoenix-to-tempe"
+                            /* Lines 41-43 omitted */
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="font-size: medium;">Grocery Run</h5>
+                        <p class="card-text" style="font-size: small;">
+                            /* Lines 52-53 omitted */
+                        </p>
+                        <a href="/dashboard/grocery-run" class="btn btn-sm btn-outline-secondary stretched-link w-100">
+                            /* Lines 55-56 omitted */
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        /* Lines 63-70 omitted */
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock js %}

@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<!-- <div class="text-start">
+    <h1 class="fw-bold">Your trip analysis</h1>
+</div> -->
+<div class="row gy-2 justify-content-center">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <i class="bi bi-geo-alt-fill"></i>
+                <h5 class="card-title m-0 mt-2 fw-bold">{{trip_info.distance}}</h5>
+                <div class="card-text text-secondary">miles</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <i class="bi bi-clock-fill"></i>
+                <h5 class="card-title m-0 mt-2 fw-bold">{{trip_info.time}}</h5>
+                <div class="card-text text-secondary">minutes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <i class="bi bi-fuel-pump-fill"></i>
+                <h5 class="card-title m-0 mt-2 fw-bold">{{trip_info.mpg}}</h5>
+                <div class="card-text text-secondary">mpg</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <i class="bi bi-speedometer"></i>
+                <h5 class="card-title m-0 mt-2 fw-bold">{{trip_info.speed}}</h5>
+                <div class="card-text text-secondary">mph</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="mb-1">Fuel consumed</p>
+                <div class="d-flex align-items-center justify-content-between">
+                    <p id="fuelConsumed">{{trip_info.fuel_consumed}}</p>
+                    <input id="fuelPrice" type="number" step="0.01" value="3.50" class="form-control form-control-sm w-50" />
+                </div>
+                <div class="mt-2">Trip cost: $<span id="tripCost">0.00</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-1 mb-5 text-start gy-4">
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <img src="{{rpm_img}}" class="card-img-top" />
+            <div class="card-body">
+                <h5 class="card-title">Engine RPM</h5>
+                <p class="card-text text-secondary">RPM progression over the trip duration</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <img src="{{ideal_speed_img}}" class="card-img-top" />
+            <div class="card-body">
+                <h5 class="card-title">Vehicle speed</h5>
+                <p class="card-text text-secondary">Speed progression during the trip</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <img src="{{acc_img}}" class="card-img-top" />
+            <div class="card-body">
+                <h5 class="card-title">Acceleration</h5>
+                <p class="card-text text-secondary">Acceleration events</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <img src="{{rpm_throttle}}" class="card-img-top" />
+            <div class="card-body">
+                <h5 class="card-title">RPM vs Throttle</h5>
+                <p class="card-text text-secondary">Density plot of RPM vs throttle position</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock js %}

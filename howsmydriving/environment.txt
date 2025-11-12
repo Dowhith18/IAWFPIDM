@@ -1,0 +1,22 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+@EXPLICIT
+https://conda.anaconda.org/anaconda/linux-64/_libgcc_mutex-0.1-main.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/blas-1.0-mkl.conda
+https://conda.anaconda.org/anaconda/linux-64/ca-certificates-2023.01.10-h06a4308_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/intel-openmp-2021.4.0-h06a4308_3561.conda
+https://conda.anaconda.org/anaconda/linux-64/ld_impl_linux-64-2.38-h1181459_1.tar.bz2
+https://conda.anaconda.org/anaconda/linux-64/libstdcxx-ng-11.2.0-h1234567_1.tar.bz2
+https://conda.anaconda.org/anaconda/noarch/tzdata-2022a-hda174b7_0.tar.bz2
+https://conda.anaconda.org/anaconda/linux-64/libgomp-11.2.0-h1234567_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/mkl-2021.4.0-h06a4308_640.conda
+https://conda.anaconda.org/anaconda/linux-64/_openmp_mutex-5.1-1_gnu.tar.bz2
+https://conda.anaconda.org/anaconda/linux-64/libgcc-ng-11.2.0-h1234567_1.tar.bz2
+https://conda.anaconda.org/anaconda/linux-64/bzip2-1.0.8-h7b6447c_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/expat-2.2.10-h9c3ff4c_0.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/giflib-5.2.1-h36c2ea0_2.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/icu-58.2-hf484d3e_1000.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/jpeg-9e-h166bdaf_1.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.1-h166bdaf_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/lerc-3.0-h295c915_0.conda
