@@ -240,7 +240,7 @@
             display: flex;
             gap: clamp(16px, 3vw, 28px);
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            color: #f6f7f8;
+            color: #ffffff;
             background: linear-gradient(140deg, rgba(17, 147, 212, 0.26), rgba(16, 28, 34, 0.92));
             border-radius: 28px;
             padding: clamp(16px, 3vw, 32px);
@@ -403,9 +403,15 @@
             font-size: clamp(28px, 4vw, 42px);
             font-weight: 900;
             letter-spacing: -0.02em;
-            color: #f6f7f8;
+            color: #FFFFFF; /* changed to full white */
         }
 
+        /* Stronger specificity to prevent other styles from overriding the headline color */
+        .trip-analysis-shell__content .trip-hero__headline {
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+            mix-blend-mode: normal !important;
+        }
         .trip-hero__subtitle {
             margin: 0;
             font-size: 0.95rem;
@@ -736,7 +742,7 @@
             .trip-chart-card__title,
             .trip-metric-card__value,
             .trip-cost__value {
-                color: #101c22;
+                color: #FFFFFF; /* force white in light mode as requested */
             }
 
             .trip-icon-btn {
